@@ -1,9 +1,12 @@
-import React,{ createContext , useReducer ,useEffect} from "react"; 
-export const Store = createContext()
+import React,{ createContext , useReducer ,useEffect, useContext} from "react"; 
+const Store = createContext()
 const initialState = {
     darkMode :  false
 } 
 
+export function useDarkMode(){
+    return useContext(Store)
+}
 function reducer(state , action){
     switch(action.type){
         case "DARK_MODE_ON" : {  
