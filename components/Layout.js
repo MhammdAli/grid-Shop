@@ -1,5 +1,5 @@
 import Head from "next/head"
-import React,{useContext} from 'react';
+import React from 'react';
 // MATERIAL UI 
 import 
 {
@@ -26,12 +26,9 @@ import MenuIcon from "@mui/icons-material/Menu"
 import CustomLink from "../utilities/customRouting";
 import {useSession,signOut} from "next-auth/react"
 import { useRouter } from "next/router";
-import { Store } from "../themes/store"; 
+import { useDarkMode } from "../themes/store"; 
 const Layout = ({children}) => {
     
- 
-    const { status} = useSession()
- 
     const listmenu = [
         {name : "Home", slugName : ""},
         {name : "Docs" , slugName : "docs"},
@@ -46,8 +43,8 @@ const Layout = ({children}) => {
     const [openAvatarMenu , setOpenAvatarmenu] = React.useState(null)
     const router = useRouter()
 
-
-    const {state , dispatch} = useContext(Store)
+    const { status } = useSession()
+    const {state , dispatch} = useDarkMode()
    
     function changeThemeMode(){
         dispatch({type : state.darkMode ? "DARK_MODE_OFF" : "DARK_MODE_ON" })

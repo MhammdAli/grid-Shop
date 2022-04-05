@@ -1,11 +1,10 @@
-import { Star } from '@mui/icons-material'
-import { Box,Container, Grid, Typography , Button , CardActionArea , Card , CardContent , CardMedia,CardActions, Rating, Divider} from '@mui/material'  
-import Image from 'next/image'
+import { Box,Container, Grid, Typography , Button , Divider} from '@mui/material'   
 import CustomLink from "../utilities/customRouting"
-import {useSession , getSession} from "next-auth/react"
-export default function Home() {
+import { getSession} from "next-auth/react"
+import axios from 'axios'
+import Productcard from '../components/productCard'
+export default function Home({topProducts}) {
 
-   const {data : session , status} = useSession()
  
 
   return (
@@ -29,58 +28,23 @@ export default function Home() {
             
           </Grid>
 
-          <Box>
+          <Box sx={{display : topProducts.length === 0 ? "none" : "block" }}>
              <Typography variant="h4" sx={{textAlign : "center",fontWeight : "bold"}} color="primary.primaryText" gutterBottom>
                    Top Products
              </Typography>
 
              <Grid container spacing={2} sx={{mt : 2}}>
-                { [1,2,3,4,5,6,7].map((item,index)=>(
+                { topProducts.map((product,index)=>(
                      <Grid item md={3} key={index}>
-                        <CustomLink route={`/product/product${index}`} disableDecoration>
-                           <Card>
-                              <CardActionArea>
-                                 <CardMedia
-                                    component="img"
-                                    height="200"
-                                    image="/header.png"
-                                    alt="green iguana"
-                                 />
-                                 <CardContent>
-                                    <Box sx={{display : "flex",alignItems : "center",justifyContent : "space-between"}}>
-                                       <Box>
-                                          <Typography gutterBottom variant="h5" paragraph sx={{m : 0}}>
-                                             Lizard
-                                          </Typography>
-                                          <Typography gutterBottom variant="subtitle2" paragraph sx={{m : 0}}>
-                                             Lizard Product
-                                          </Typography>
-                                       </Box>
-
-                                       <Typography>875$</Typography>
-
-                                    </Box>
-
-                                    <Box sx={{display : "flex",alignItems : "center"}}>
-                                       <Rating 
-                                          name="text-feedback"
-                                          value={3}
-                                          readOnly
-                                          precision={0.5}
-                                          emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit" />}
-                                       />
-                                    
-                                       <Box sx={{ ml: 2 }}>Good</Box>
-                                    </Box>
-
-                                    <Typography variant="body2" color="text.secondary" sx={{mt : 2}}>
-                                       Lizards are a widespread group of squamate reptiles, with over 6,000
-                                       species, ranging across all continents except Antarctica
-                                    </Typography>
-                                    
-                                 </CardContent>
-                              </CardActionArea> 
-                           </Card>  
+                        <CustomLink route={`/product/${product.slugName}`} disableDecoration>
+                           <Productcard
+                              image={product.image}
+                              name = {product.name}
+                              mainCategory={product?.category?.main}
+                              price={product.price}
+                              rating={product.rating}
+                              description={product.description} 
+                           />
                        </CustomLink>   
                    </Grid>
                   ))
@@ -111,10 +75,12 @@ export async function getServerSideProps(context){
 
     const session = await getSession(context)
 
+    const {data} = await axios.get(`http://localhost:3000/api/products/topProducts?page=0&pageSize=10`)
      
     return {
        props : {
-          session
+          session,
+          topProducts :  data.result
        }
     }
 
