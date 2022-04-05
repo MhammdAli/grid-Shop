@@ -21,6 +21,7 @@ function omit(doc , fields){
 // 1) how to omit doc (password) from save method and resolve the non omited object to the user
 export function createUser(doc){ 
     const user = new UserModel(doc) 
+    // eslint-disable-next-line no-undef
     return new Promise((resolve , reject)=>{
         user.save(function (err,doc){
            
@@ -91,6 +92,7 @@ export async function getUserByEmail(email){
 export function deleteUser(id){
     if(typeof id !== "string" && typeof id !== "number") throw new Error("id must be a string or a number")
 
+    // eslint-disable-next-line no-undef
     return new Promise((resolve , reject)=>{
  
         UserModel.findByIdAndDelete(id,(err,doc)=>{
