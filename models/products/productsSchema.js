@@ -11,9 +11,8 @@ const CategorySchema = new mongoose.Schema({
         type : String
     }
     
-},{"_id" : false})
+},{"_id" : false,versionKey : false})
 
- 
 const productSchema = new mongoose.Schema({
     name : {
         type : String,
@@ -51,9 +50,7 @@ const productSchema = new mongoose.Schema({
         type : Number, 
         default : 0
     },
-    stocks : {
-         type : [StockSchema], 
-    },
+    stocks : [StockSchema],
     description : {
         type : String,
         required : [true,"description Name is required"],

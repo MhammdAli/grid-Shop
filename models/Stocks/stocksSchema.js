@@ -6,7 +6,7 @@ export const StockSchema = new mongoose.Schema({
         required : [true , "Stock name must be specified"]
     },
     product_ID : {
-        type : mongoose.Types.ObjectId,
+        type : mongoose.Schema.Types.ObjectId,
         ref : 'Product'
     },
     countInStock : {
@@ -16,7 +16,7 @@ export const StockSchema = new mongoose.Schema({
     branchAddress : {
         type : String
     }
-})
+},{_id : false})
 
- 
+
 export const stockModel = mongoose.models.stock || mongoose.model("stock",StockSchema)

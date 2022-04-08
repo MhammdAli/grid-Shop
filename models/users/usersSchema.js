@@ -1,16 +1,17 @@
-import mongoose from "mongoose"
-import { isValidEmail ,isValidPassword} from "../../utilities/Validation"
-import {hashPassword} from "../../config/security"
+import mongoose from "mongoose";
+import { isValidEmail ,isValidPassword} from "../../utilities/Validation";
+import {hashPassword} from "../../config/security";
+
 const UserSchema = new mongoose.Schema({
     firstName : {
         type : String,
-        required : [true,"First Name Must Be Required"],
-        minlength : [6,"First Name must be min 6"]
+        required : [true,"First Name is required"],
+        minlength : [6,"First Name must be min 6 characters"]
     },
     lastName : {
         type : String,
-        required : [true,"Last Name Must Be Required"],
-        minlength : [6,"LastName Name must be min 6"]
+        required : [true,"Last Name is required"],
+        minlength : [6,"LastName Name must be min 6 characters"]
     },
     email : {
         type : String,
@@ -37,20 +38,19 @@ const UserSchema = new mongoose.Schema({
         type : String
     },
     
-})
- 
+},{timestamps : true})
 
 
-UserSchema.pre("save",async function(next){
-
+/*
+*  This middleware is used to encrypt password before insert it in database
+*/
+UserSchema.pre("save",async function(next){ 
     const password = this.password  
     try{
         this.password = await hashPassword(password)
     }catch(err){
         next({"message" : "Somthing went Wrong!!","name" : "INSERTED_USER_WRONG"})
-    }
-    
-
+    } 
 })
 
  
