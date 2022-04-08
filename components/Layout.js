@@ -5,7 +5,7 @@ import
 {
     ThemeProvider ,AppBar,
     Toolbar, 
-    IconButton, Button, Box, Menu, MenuItem, Avatar, Collapse, MenuList, CssBaseline,createTheme
+    IconButton, Button, Box, Menu, MenuItem, Avatar, Collapse, MenuList, CssBaseline,createTheme,Badge
 } from "@mui/material";
 import 
 {
@@ -23,10 +23,11 @@ import {
 import MenuIcon from "@mui/icons-material/Menu"   
 //import theme from "../themes/theme"
 
-import CustomLink from "../utilities/customRouting";
-import {useSession,signOut} from "next-auth/react"
+import CustomLink from "../utilities/customRouting"; 
 import { useRouter } from "next/router";
-import { useDarkMode } from "../themes/store"; 
+import { useStore } from "../store/store"
+import {changeDarkMode} from "../store/actions" 
+import {useAuth,logOut} from "../auth/AuthContext"
 const Layout = ({children}) => {
     
     const listmenu = [
@@ -42,12 +43,13 @@ const Layout = ({children}) => {
     const [openMenu , setOpenMenu] = React.useState(false)
     const [openAvatarMenu , setOpenAvatarmenu] = React.useState(null)
     const router = useRouter()
-
-    const { status } = useSession()
-    const {state , dispatch} = useDarkMode()
+ 
+    const {status} = useAuth()
+     
+    const {state , dispatch} = useStore()
    
     function changeThemeMode(){
-        dispatch({type : state.darkMode ? "DARK_MODE_OFF" : "DARK_MODE_ON" })
+        dispatch(changeDarkMode(!state.darkMode ))
         localStorage.setItem("darkMode",!state.darkMode )
     }
 
@@ -88,7 +90,7 @@ const Layout = ({children}) => {
     })
 
     return (
-        <>
+        <>  
             <Head>
                 <title>Grid Shop</title>
             </Head>
@@ -125,19 +127,27 @@ const Layout = ({children}) => {
                             </SearchInput>
 
                             <IconButton sx={{color : "primary.main" , borderRadius : theme.shape.borderRadius}}>
-                                {status === "authenticated" ? <ShoppingCart sx={{width : 24 , height : 24}}/> : <RemoveShoppingCart sx={{width : 24 , height : 24}}/>}
+                                {status === "AUTHENTICATED" 
+                                ? 
+                                    <CustomLink route="/Cart" disableDecoration color="inherit">
+                                        <Badge badgeContent={state?.cart?.reduce((agg,{quantity})=>agg + quantity,0)} color="error">
+                                            <ShoppingCart sx={{width : 24 , height : 24}}/>
+                                        </Badge> 
+                                    </CustomLink>
+                                : 
+                                    <RemoveShoppingCart sx={{width : 24 , height : 24}}/>}
                             </IconButton>
-
-                            <IconButton  sx={{color : "primary.main" , borderRadius : theme.shape.borderRadius}}>
-                                {state.darkMode ? <LightMode onClick={changeThemeMode} sx={{width : 24 , height : 24}}/> : <DarkMode onClick={changeThemeMode} sx={{width : 24 , height : 24}}/>}
+                           
+                            <IconButton onClick={changeThemeMode}  sx={{color : "primary.main" , borderRadius : theme.shape.borderRadius}}>
+                                {state.darkMode ? <LightMode  sx={{width : 24 , height : 24}}/> : <DarkMode  sx={{width : 24 , height : 24}}/>}
                             </IconButton>
                         
                              
-                            {status === "authenticated" 
+                            {status === "AUTHENTICATED" 
                                 ?   <>
 
                                  
-                                        <Avatar src="/header.png" sx={{ width: 30, height: 30 ,ml : 1 , mr : {xs : 1,md : 0}}} onClick={({currentTarget})=>{setOpenAvatarmenu(currentTarget)}}/>     
+                                        <Avatar src="/header.png" sx={{ width: 30, height: 30 ,ml : 1 , mr : {xs : 1,md : 0}}} onClick={({currentTarget})=>{setOpenAvatarmenu(currentTarget)}} alt="user image"/>     
                                      
                                         <Menu
                                             open={Boolean(openAvatarMenu)}
@@ -152,7 +162,9 @@ const Layout = ({children}) => {
                                             <MenuItem dense onClick={()=>{setOpenAvatarmenu(null)}}>View profile</MenuItem>
                                             <MenuItem dense onClick={()=>{
                                                  setOpenAvatarmenu(null)
-                                                 signOut({callbackUrl : "/about-Us" , redirect : false}).then(()=>{router.replace("/signin")})
+                                                 logOut().then(()=>{
+                                                    router.replace("/signin")   
+                                                 })  
                                             }}>Logout</MenuItem>
 
                                             
@@ -200,7 +212,7 @@ const Layout = ({children}) => {
 
              
                 {children}  
-            </ThemeProvider>
+         </ThemeProvider>
             
         </>
     );
