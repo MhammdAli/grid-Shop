@@ -1,19 +1,18 @@
 import { Box , Typography , TextField , Button ,LinearProgress} from '@mui/material';
 import React,{useState} from 'react'; 
-import { FlexBox } from '../components/FlexBox';
-import axios from "axios";
-import {signIn , useSession,getSession} from "next-auth/react"
-import {useRouter} from "next/router" 
+import { FlexBox } from '../components/FlexBox'; 
+import { getSession } from '../auth/session';
+import { createUser } from '../auth/AuthContext';
+import { useRouter } from 'next/router';
+import { connect } from '../config/dbConn';
 const Registration = () => {
 
-    const {data : session , status} = useSession()
-
-    const router = useRouter()
- 
+   
+     
      
     const [errors , setErrors] = useState()
     const [loading , setLoading] = useState(false)
-    
+    const router = useRouter()
     function handleRegistration(event){
         event.preventDefault() 
         
@@ -26,47 +25,28 @@ const Registration = () => {
 
         
         setLoading(true)
-        axios.post("/api/auth/register",{
+
+
+
+        createUser({
             email : emailVal,
             password : passwordVal,
             firstName : firstNameVal,
             lastName  : lastNameVal
-        })
-        .then(res=>{
-  
-            const type = res.data.type;
-
-            if(type === "ERROR"){
-                const  errors = res.data?.err
-                
-                setLoading(false)
-                if(errors._type === "VALIDATION_ERRORS")
-                    return setErrors(errors) 
-                else if(errors.type === "DUPLICATE_KEY_VALUE"){  
-                    return setErrors({email : {
-                        message : "Email Already in used"
-                    }})
-                } 
-                
-                return;
-            }
-
-
+        }).then(()=>{ 
             setErrors(null)
-               
-            signIn("credentials",{"redirect" : false,email : emailVal,password : passwordVal})
-            .then(res=>{ 
-                setLoading(false)
-                router.replace("/")
-            })
-            .catch(err=>{ 
-                setLoading(false)
-            })
-           
-
+            router.replace("/")
         })
-        .catch(err=>{
+        .catch((errors)=>{
+            console.log(errors)
              setLoading(false) 
+            if(errors._type === "VALIDATION_ERRORS")
+                return setErrors(errors) 
+            else if(errors.type === "DUPLICATE_KEY_VALUE"){  
+                return setErrors({email : {
+                    message : "Email Already in used"
+                }})
+            }  
         })
  
     }
@@ -121,20 +101,23 @@ const Registration = () => {
 
 export default Registration;
 
+ 
+
 
 export async function getServerSideProps(context) {
-
-    const session = await getSession(context)
- 
-    if(session){
+    await connect()
+    const session = await getSession(context) 
+    
+    if(session.type === "SUCCESS"){
         return {
             redirect : {
                 destination : "/"
             }
         }
     }
-
+    
+ 
     return {
-      props: {session}, 
+      props: {session : null}, 
     }
 }

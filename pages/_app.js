@@ -1,17 +1,17 @@
 import '../styles/globals.css'
-import Layout from '../components/Layout'
-import {SessionProvider} from "next-auth/react"
-import { StoreProvider } from '../themes/store'
+import Layout from '../components/Layout' 
+import { StoreProvider } from '../store/store'
+import {AuthProvider} from "../auth/AuthContext"
 function MyApp({ Component, pageProps}) {
- 
-  return (
-    <SessionProvider session={pageProps.session}>
+   
+  return ( 
+    <AuthProvider session={pageProps.session}>
       <StoreProvider>
         <Layout>
           <Component {...pageProps} />
         </Layout> 
       </StoreProvider>
-    </SessionProvider>
+    </AuthProvider> 
   )
 }
 

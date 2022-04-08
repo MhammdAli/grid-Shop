@@ -1,12 +1,13 @@
 import React from 'react';
-import { Button, Checkbox , FormControlLabel, Snackbar, TextField, Typography , Alert, LinearProgress, IconButton} from '@mui/material';
+import { Button, Checkbox , FormControlLabel, Snackbar, TextField, Typography , Alert, IconButton} from '@mui/material';
 import { Box } from '@mui/system';
-
 import CustomLink from "../utilities/customRouting"
-import { FlexBox } from '../components/FlexBox'; 
-import {signIn , useSession , getSession} from "next-auth/react"
+import { FlexBox } from '../components/FlexBox';  
+import { getSession } from '../auth/session';
 import {useRouter} from "next/router" 
 import { Close } from '@mui/icons-material';
+import { signIn } from '../auth/AuthContext';
+import { connect } from '../config/dbConn';
 const Signin = () => {
 
     const [rememberMeError , setRememberMe] = React.useState(false)
@@ -28,18 +29,18 @@ const Signin = () => {
         setRememberMe(false)
        
 
-        try{
-           const result = await signIn("credentials",{email : emailVal , password : passVal,redirect : false})
- 
-           if(result.status === 401) {throw new Error("Invalid Credintials")}
-           
+        signIn(emailVal,passVal)
+        .then(()=>{ // take token as a parameter
            setError(null)
            router.replace("/")
-           // success
-        }catch(err){
-            setError(err.message)
-        }
-         
+        }).catch(err=>{  
+          if(err.name === "INVALID_PASSWORD"){
+              setError("Password is Invalid Please Correct it")  
+          }else if(err.name === "EMAIL_NOT_FOUND"){
+            setError("Email is wrong")  
+          }
+        })
+          
     }
  
     const handleClose = (event, reason) => {
@@ -97,10 +98,10 @@ const Signin = () => {
 }
 
 export async function getServerSideProps(context) {
-
+    await connect()
     const session = await getSession(context) 
     
-    if(session){
+    if(session.type === "SUCCESS"){
         return {
             redirect : {
                 destination : "/"
@@ -110,7 +111,7 @@ export async function getServerSideProps(context) {
     
  
     return {
-      props: {session}, 
+      props: {session : null}, 
     }
 }
 

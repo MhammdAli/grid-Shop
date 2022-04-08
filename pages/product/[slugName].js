@@ -1,67 +1,95 @@
-import React from 'react'; 
-import { Container, Link ,Grid, List, ListItem, Typography,Card,Button,Slider} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import NextLink from "next/link"
-import Image from "next/image"
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import axios from "axios"
+import React,{useState } from 'react'; 
+import { Container ,Grid, List, ListItem, Typography,Card,Button,Slider,Snackbar, IconButton} from '@mui/material'; 
+import Image from "next/image";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'; 
+import { Close } from '@mui/icons-material';
+import {useStore} from "../../store/store";
+import { addToCart, updateToCart } from '../../store/actions';
+import {getSession} from "../../auth/session";
+import { getProductBySlugName } from '../../models/products/products';
+import {convertDocToObject} from "../../utilities/converter";
+import { connect } from '../../config/dbConn';
+import {useRouter} from "next/router"
 const Productid = ({product}) => {
  
-    // you will remove this code and you have to create another comonent and send to it product not found
+    const [SnackMessage , setSnackMessage] = useState({isError : false , message : null}) 
+    const [quantity , setQuantity] = useState(1)
+    
+    const {state , dispatch} = useStore()
+    const router = useRouter()
+    const [maxQuantity , setMaxQuantity] = useState(0)
+
+    React.useMemo(()=>{
+       setMaxQuantity(product?.stocks?.reduce((agg,stock) => (agg + stock?.countInStock),0))
+    },[product?.stocks])
+
+
     if(!product){
-        return (
-            <Typography>Product Not Exists</Typography>
-        )
+    return (
+        <Typography>Product Not Exists</Typography>
+    )
     }
 
-    const PrettoSlider = styled(Slider)({
-        color: 'primary.main',
-        height: 8,
-        '& .MuiSlider-track': {
-          border: 'none',
-        },
-        '& .MuiSlider-thumb': {
-          height: 24,
-          width: 24,
-          backgroundColor: '#fff',
-          border: '2px solid currentColor',
-          '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-            boxShadow: 'inherit',
-          },
-          '&:before': {
-            display: 'none',
-          },
-        },
-        '& .MuiSlider-valueLabel': {
-          lineHeight: 1.2,
-          fontSize: 12,
-          background: 'unset',
-          padding: 0,
-          width: 32,
-          height: 32,
-          borderRadius: '50% 50% 50% 0',
-          backgroundColor: '#3479db',
-          transformOrigin: 'bottom left',
-          transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
-          '&:before': { display: 'none' },
-          '&.MuiSlider-valueLabelOpen': {
-            transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
-          },
-          '& > *': {
-            transform: 'rotate(45deg)',
-          },
-        },
-      });
+    const handleSnackBarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
 
+        setSnackMessage({isError : false , message : null});
+    };
 
-    
+    const addToCartAction = ()=>{
+        if(product?.stocks?.length <= 0){
+            setSnackMessage({isError : true,message : "This product is not availbale in the stock rightnow !!"})
+            return;
+        } 
+
+        const existsItemIndex  = state.cart?.findIndex(({product : {_id}})=> _id === product._id);
+
+        if(existsItemIndex !== -1){
+           var oldQuantity = state.cart[existsItemIndex].quantity 
+ 
+            if(oldQuantity === quantity) {
+               setSnackMessage({isError : false,message : `This product Already have the same ordered quantity`})
+               return;  
+            } 
+            setSnackMessage({isError : false,message : `Product Updated oldQuantity : ${state.cart[existsItemIndex].quantity} newQuantity : ${quantity}`})
+            dispatch(updateToCart(existsItemIndex,quantity))  
+        }else{
+           setSnackMessage({isError : false,message : "Product Add To Cart Successfuly"})
+           dispatch(addToCart(product , quantity))
+        }
+    }
+ 
+      const action = (
+        <React.Fragment> 
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleSnackBarClose}
+          >
+            <Close fontSize="small" />
+          </IconButton>
+        </React.Fragment>
+      );
+
+     
     return (
-        <Container sx={{my : 1.5}}>
-            <NextLink href="/" passHref >
-                  <Link>
-                      <ArrowBackIcon sx={{pt : "4px",fontSize : 20}}/> back to products
-                  </Link>
-            </NextLink>
+        <Container sx={{my : 1.5}}> 
+
+            <Snackbar open={Boolean(SnackMessage.message)}  sx={{
+                "& .MuiPaper-root" : {
+                    backgroundColor : SnackMessage.isError ? "error.main" : "success.main"
+                }
+            }} autoHideDuration={100000} onClose={handleSnackBarClose} action={action} message={SnackMessage.message} anchorOrigin={{vertical: 'top',horizontal: 'center'}} />
+                
+            <Button onClick={()=>{ 
+                router.back()
+            }}>
+                 <ArrowBackIcon sx={{pt : "4px",fontSize : 20}}/> back to products 
+            </Button>
+                      
             <Grid container spacing={1} sx={{my : 1.5}}>
                 <Grid item md={6} xs={12}>
                     <Image src={'/header.png'} alt="priducts" width={440} height={340} layout="responsive"></Image>
@@ -107,20 +135,33 @@ const Productid = ({product}) => {
                                             <Grid item><Typography>in stock but calculated</Typography></Grid>
                                         </Grid>
                                     </ListItem>
-                                    <ListItem>
-                                        Quantity :
-                                    </ListItem>
-                                    <ListItem>
-                                        
-                                        <PrettoSlider
-                                            valueLabelDisplay="auto"
-                                            aria-label="pretto slider"
-                                            defaultValue={0}
-                                            max={100}
-                                        />
-                                    </ListItem>
+                                    {product?.stocks?.length > 0 ?
+                                        <>
+                                            <ListItem>
+                                                Quantity :
+                                            </ListItem>
+                                            <ListItem>
+                                                
+                                                <Slider
+                                                    aria-label="Temperature"
+                                                    defaultValue={1} 
+                                                    valueLabelDisplay="auto"
+                                                    step={1}
+                                                    marks
+                                                    min={1}
+                                                    onChange={(event,value)=>{
+                                                        setQuantity(value)
+                                                    }}
+                                                    max={maxQuantity}
+                                                />
+                                            </ListItem>
+                                        </>
+                                    :
+                                    <ListItem sx={{color : "info.main"}}>
+                                        Not Availabel In Stock
+                                    </ListItem>}
                                     <ListItem >
-                                        <Button fullWidth variant="contained">Add To Cart</Button>
+                                        <Button fullWidth variant="contained" onClick={addToCartAction}>Add To Cart</Button>
                                     </ListItem>
                                 </List>
                             </Card>
@@ -149,16 +190,22 @@ export default Productid;
 
 
 export async function getServerSideProps(context){
+    await connect();
 
+    const session = await getSession(context);
+   
     const {
         slugName
-    } = context.params
+    } = context.params;
 
-    const {data} = await axios.get(`http://localhost:3000/api/products/${slugName}`)
-
+    const product = await getProductBySlugName(slugName);
+    
+ 
     return {
         props : {
-            product : data.result
+            session : (session.type === "SUCCESS") ? session.token : null,
+            product : product ? convertDocToObject(product) : null
         }
-    }
-}
+    };
+ }
+ 

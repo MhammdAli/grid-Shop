@@ -1,9 +1,7 @@
 import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect  } from "../../../config/dbConn"
 import {createUser} from "../../../models/users/users" 
-// establish the connection with mongoDB
- 
-
+import {buildTokens , setTokens} from "../../../utilities/tokens_utilities"
 
 handler.post(async (req,res)=>{
    
@@ -21,8 +19,17 @@ handler.post(async (req,res)=>{
         lastName : lastName,
         email : email,
         password : password
-    }).then(user=>{
-        res.json({user , type : "SUCCESS" })
+    }).then(user=>{ 
+
+        const userPayload = { 
+            UID : user._id.toString(),
+            userName : user.firstName + " " + user.lastName
+        } 
+
+        const {accessToken, refreshToken} = buildTokens(userPayload) 
+        setTokens(res,accessToken,refreshToken) 
+        res.json({type : "SUCCESS" , token : accessToken}) 
+
     }).catch(err=>{
         res.json({err , type : "ERROR"})
     })

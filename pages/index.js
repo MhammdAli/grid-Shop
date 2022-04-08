@@ -1,38 +1,41 @@
-import { Box,Container, Grid, Typography , Button , Divider} from '@mui/material'   
-import CustomLink from "../utilities/customRouting"
-import { getSession} from "next-auth/react"
-import axios from 'axios'
-import Productcard from '../components/productCard'
+import { Box,Container, Grid, Typography , Button , Divider} from '@mui/material';   
+import CustomLink from "../utilities/customRouting";
+import { getSession } from '../auth/session';
+import Productcard from '../components/productCard';
+import { getTopProducts } from '../models/products/products';
+import Sectionsplitter from '../components/sectionSplitter';
+import { connect } from '../config/dbConn';
+import {convertDocToObject} from "../utilities/converter";
 export default function Home({topProducts}) {
-
  
-
   return (
        <Container>
           <Grid container sx={{alignItems : "center" , minHeight : 300 , mb : 6, mt : 2}} spacing={2}>
              
              <Grid item sm={6}>
                  <Typography variant="h4">Amazing Products For Sale</Typography>
-                 <Typography variant='h5' color="primary.primaryText" gutterBottom>Enjoy Your Time 😍</Typography>
-                 <Typography gutterBottom>
+                 
+                 <Sectionsplitter variant="h5" title="Enjoy Your Time 😍"/>
+                 
+                 <Typography gutterBottom mt={2} mb={2}>
                     The computation of values depends on the images intrinsic dimensions (width and height) and intrinsic 
                     proportions (width-to-height ratio). These attributes are as follows
                  </Typography>
                  <Button variant="contained">
                      Enjoy Your Time
                  </Button>
+
              </Grid>
              <Grid item sm={6}>
-                 <img src="/header.png" style={{width : "100%"}}  alt="This ismge #1"/>
+                 <img src="/header.png" style={{width : "100%"}}  alt="buy products image"/>
              </Grid>
             
           </Grid>
 
           <Box sx={{display : topProducts.length === 0 ? "none" : "block" }}>
-             <Typography variant="h4" sx={{textAlign : "center",fontWeight : "bold"}} color="primary.primaryText" gutterBottom>
-                   Top Products
-             </Typography>
-
+             
+             <Sectionsplitter title="Top Products"/>
+             
              <Grid container spacing={2} sx={{mt : 2}}>
                 { topProducts.map((product,index)=>(
                      <Grid item md={3} key={index}>
@@ -53,13 +56,11 @@ export default function Home({topProducts}) {
              </Grid>
           </Box>
           <Divider sx={{mt : 4,mb : 4}}/>
-          <Box sx={{textAlign : "center"}}>
+          <Box>
 
-             <Typography variant="h4" sx={{textAlign : "center",fontWeight : "bold"}} color="primary.primaryText" gutterBottom>
-                   Why buy from us?
-             </Typography>
-
-             <Typography>
+             <Sectionsplitter title="Why buy from us?" width={230}/>
+            
+             <Typography sx={{my : 2}}>
                 journal has been the best selling and most loved OpenCart theme since first in 2003.
                 Tried and tested by over 20k people. journal is a best opencart theme framework on the market today.
                 <CustomLink route="/about-Us">Read More</CustomLink>
@@ -71,17 +72,19 @@ export default function Home({topProducts}) {
   )
 }
 
+
 export async function getServerSideProps(context){
+   await connect();
+   const session = await getSession(context);
+   
+   const topProducts =  await getTopProducts(0,10);
+    
 
-    const session = await getSession(context)
-
-    const {data} = await axios.get(`http://localhost:3000/api/products/topProducts?page=0&pageSize=10`)
-     
-    return {
-       props : {
-          session,
-          topProducts :  data.result
-       }
-    }
+   return {
+      props : {
+         session : (session.type === "SUCCESS") ? session.token : null,
+         topProducts : topProducts.map(convertDocToObject)
+      }
+   }
 
 }

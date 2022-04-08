@@ -13,8 +13,10 @@ handler.get(async (req,res)=>{
      
     try{ 
        const result = await getTopProducts(parseInt(page || 0) , parseInt(pageSize || 100) )
+        
        res.json({result})
     }catch(error){
+        console.log(error)
         res.json({error})
     }
  
