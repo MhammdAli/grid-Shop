@@ -2,13 +2,13 @@ import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect  } from "../../../config/dbConn"
 import {setTokens , refreshTokens , verifyRefreshToken,clearTokens} from "../../../utilities/tokens_utilities"
 import {getUserById} from "../../../models/users/users"
-
+import {createError} from "../../../utilities/Errors/CustomErrors"
 handler.post(async (req,res)=>{
  
     try{
     await connect()
     }catch(err){
-        res.json({type : "ERROR",name : "SOMTHING_WRONG"})
+        res.json(createError("SOMTHING_WRONG"))
     }
 
     try {
@@ -29,8 +29,8 @@ handler.post(async (req,res)=>{
         res.json({type : "SUCCESS",token : accessToken })
 
       } catch (error) { 
-        clearTokens(res)
-        res.json({type : "ERROR",name : error.name})
+        clearTokens(res) 
+        res.json(createError(error.name))
       }
      
     
