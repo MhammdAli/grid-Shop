@@ -13,6 +13,7 @@ const Registration = () => {
     const [errors , setErrors] = useState()
     const [loading , setLoading] = useState(false)
     const router = useRouter()
+    
     function handleRegistration(event){
         event.preventDefault() 
         
@@ -25,9 +26,7 @@ const Registration = () => {
 
         
         setLoading(true)
-
-
-
+  
         createUser({
             email : emailVal,
             password : passwordVal,
@@ -38,15 +37,15 @@ const Registration = () => {
             router.replace("/")
         })
         .catch((errors)=>{
-            console.log(errors)
+             
              setLoading(false) 
-            if(errors._type === "VALIDATION_ERRORS")
-                return setErrors(errors) 
-            else if(errors.type === "DUPLICATE_KEY_VALUE"){  
+            
+            if(errors.type === "DUPLICATE_KEY_VALUE"){  
                 return setErrors({email : {
                     message : "Email Already in used"
                 }})
-            }  
+            }else
+               return setErrors(errors) 
         })
  
     }
