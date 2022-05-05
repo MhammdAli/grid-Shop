@@ -37,6 +37,8 @@ const UserSchema = new mongoose.Schema({
     imageUrl : {
         type : String
     },
+    isAdmin : Boolean,
+    roles : Array
     
 },{timestamps : true})
 

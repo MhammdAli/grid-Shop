@@ -1,5 +1,5 @@
 import {UserModel} from "./usersSchema";
-import {createValidationError , createMongoDbServerError} from "../../utilities/MongodbErrors/MongoDBErrors";
+import {createValidationError , createMongoDbServerError} from "../../utilities/Errors/MongodbErrors/MongoDBErrors";
 
 /*
 * This function is used to createUser a new User
@@ -44,8 +44,8 @@ export function updateById(id,doc){
      if(typeof doc !== "object") throw new Error("doc must be a object")
      
      return new Promise((resolve , reject)=>{
-
-        UserModel.updateOne({_id : id},{"$set" : doc},{runValidators : true},function(err,result){
+ 
+        UserModel.findByIdAndUpdate(id,{"$set" : doc},{runValidators : true},function(err,result){
 
             if(err){ 
                 if(err.name === 'ValidationError') return reject(createValidationError(err))
@@ -53,12 +53,14 @@ export function updateById(id,doc){
                 if(err.name === "CastError") return reject({err : "Casting error"})
                 return reject(err)
             }
- 
-            resolve(result.acknowledged && result.modifiedCount > 0 )
-
+            
+            resolve(result)
+            
         })
 
      })
+       
+ 
 }
 
 /*
@@ -114,6 +116,12 @@ export async function getUserById(id){
 */
 export async function getUserByEmail(email){
     if(typeof email !== "string") throw new Error("email must be a string")
-    return await UserModel.findOne({email} , {password : 1,firstName : 1,lastName : 1 , imageUrl:1})
+    return await UserModel.findOne({email} , {password : 1,firstName : 1,lastName : 1 , imageUrl:1,isAdmin : 1 , roles : 1}).lean()
 }
 
+
+export async function getUsers(filter,page , pageSize){
+    return  await UserModel.find(
+        filter
+    ,{},{limit : pageSize,skip : page * pageSize}).lean()
+}
