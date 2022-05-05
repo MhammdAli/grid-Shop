@@ -3,7 +3,7 @@ import { connect  } from "../../../config/dbConn"
 import {setTokens , buildTokens} from "../../../utilities/tokens_utilities"
 import {getUserByEmail} from "../../../models/users/users"
 import {comparePassword} from "../../../config/security"
-
+import {createError} from "../../../utilities/Errors/CustomErrors"
 handler.post(async (req,res)=>{
  
     await connect()
@@ -15,13 +15,16 @@ handler.post(async (req,res)=>{
 
     try{
         const user = await getUserByEmail(email)
-         
-        if(!user) return res.json({type : "ERROR" , name : "EMAIL_NOT_FOUND"})
+        
+        if(!user) return res.json(createError("EMAIL_NOT_FOUND"))
          
         if((await comparePassword(password , user.password))){
+         
             const userPayload = { 
                 UID : user._id.toString(),
-                userName : user.firstName + " " + user.lastName
+                userName : user.firstName + " " + user.lastName,
+                isAdmin : user.isAdmin ? true : false,
+                roles : user.roles
             } 
 
             const {accessToken, refreshToken} = buildTokens(userPayload)
@@ -31,11 +34,11 @@ handler.post(async (req,res)=>{
             res.json({type : "SUCCESS" , token : accessToken})
 
         }else{
-            return res.json({type : "ERROR" , name : "INVALID_PASSWORD"})  // incorrect pass
+            return res.json(createError("INVALID_PASSWORD"))  // incorrect pass
         }
       }catch(err){ 
-          console.log(err)
-          res.json({type : "ERROR",name : err.name})
+          console.log(err) 
+          res.json(createError(err.name))
       }
        
  

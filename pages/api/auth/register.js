@@ -23,8 +23,10 @@ handler.post(async (req,res)=>{
 
         const userPayload = { 
             UID : user._id.toString(),
-            userName : user.firstName + " " + user.lastName
-        } 
+            userName : user.firstName + " " + user.lastName,
+            isAdmin : user.isAdmin ? true : false,
+            roles : user.roles
+        }
 
         const {accessToken, refreshToken} = buildTokens(userPayload) 
         setTokens(res,accessToken,refreshToken) 

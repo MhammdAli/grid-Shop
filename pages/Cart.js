@@ -1,4 +1,4 @@
-import { Button, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow , Link, Select, MenuItem, ListItem , List ,Paper , Typography, IconButton , TablePagination } from '@mui/material';
+import { Button, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow , Link, Select, MenuItem, ListItem , List ,Paper , Typography, IconButton , TablePagination ,Stack} from '@mui/material';
 import React,{useState} from 'react';
 import Sectionsplitter from '../components/sectionSplitter';
 import {useStore} from "../store/store";
@@ -7,23 +7,32 @@ import {Close , AccountBalance} from '@mui/icons-material';
 import NextLink from "next/link";
 import { removeFromCart } from '../store/actions';
 import {updateToCart} from "../store/actions"
+import { useRouter } from 'next/router';
+import {useAuth} from "../auth/AuthContext"; 
+import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt';
 const Cart = () => {
   
+    const router = useRouter()
     const {state : {cart},dispatch} = useStore()
-
+    const {session} = useAuth()
     const [page , setPage]= useState(0)
     const [rowsPerPage , setRowsPerPage] = useState(5)
     const removeProductHandler = (product_id)=>{ 
-        dispatch(removeFromCart(product_id))
+        dispatch(removeFromCart(session.UID,product_id))
     }
 
     const handleChange = (event,productId) => {
-        const newQuantity = event.target.value
+       const newQuantity = event.target.value
         
        const existsItemIndex  = cart?.findIndex(({product : {_id}})=> _id === productId);
 
-       dispatch(updateToCart(existsItemIndex,newQuantity))
+       dispatch(updateToCart(session.UID,existsItemIndex,newQuantity))
     };
+
+    const handleCheckOut = ()=>{
+        router.push("/shipping")
+    }
+    
  
     return (
         <Container>
@@ -55,7 +64,7 @@ const Cart = () => {
                                             </TableCell>
                                             <TableCell>{cart?.product?.name}</TableCell>
                                             <TableCell align='right'>
-                                                <Select value={cart?.quantity} size="small" onChange={(event)=>{handleChange(event,cart.product._id)}}>
+                                                <Select defaultValue={cart?.quantity} size="small" onChange={(event)=>{handleChange(event,cart.product._id)}}>
                                                      {[...Array(cart?.product?.stocks.reduce((agg,{countInStock})=>agg+countInStock,0)).keys()].map(x=>(<MenuItem key={x+1} value={x+1} >
                                                          {x+1}
                                                      </MenuItem>))}
@@ -69,9 +78,10 @@ const Cart = () => {
                                 }
                             </TableBody>
                         </Table> 
+                        {cart?.length > 0 ?
                         <TablePagination
                             component="div"
-                            count={cart.length}
+                            count={cart?.length || 0}
                             page={page} 
                             onPageChange={(event , pageNb)=>{
                                 setPage(pageNb)
@@ -83,6 +93,8 @@ const Cart = () => {
                             rowsPerPage={rowsPerPage}
                             rowsPerPageOptions={[5,10,15,20,25,30]} 
                         />
+                        : <Stack flexDirection="row" justifyContent="center" my={2}><DoDisturbAltIcon/> There is no Items right now</Stack>
+                        }
                     </TableContainer>
                 </Grid>
                 <Grid item md={4} xs={12}>
@@ -99,7 +111,7 @@ const Cart = () => {
                                 <Typography>Total : ${cart?.reduce((acc,item)=>acc + item?.quantity * item?.product?.price,0) || 0} </Typography>
                             </ListItem> 
                             <ListItem>
-                                <Button variant="contained" fullWidth>CHECK OUT</Button>
+                                <Button variant="contained" fullWidth onClick={handleCheckOut}>CHECK OUT</Button>
                             </ListItem>
                         </List>
                     </Paper>
