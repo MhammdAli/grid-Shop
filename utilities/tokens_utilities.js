@@ -1,8 +1,7 @@
-
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
 import {promisify} from "util";
-
+import { createError } from "./Errors/CustomErrors"; 
 const verifyToken = promisify(jwt.verify); 
 
 const TokenExpiration = {
@@ -48,14 +47,19 @@ async function verifyAccessToken(token) {
   try {
     return await verifyToken(token, process.env.ACCESS_TOKEN_SECRET) 
   } catch (e) {
-     return {type : "ERROR",name : e.name}
+     return createError(e.name)
   }
 }
 
  
 function buildTokens(user) {
     
-  const accessPayload = {UID: user.UID , name : user.userName}
+  const accessPayload = {
+     UID: user.UID ,
+     name : user.userName,
+     isAdmin : user.isAdmin,
+     roles : user.roles
+  }
   const refreshPayload = {UID: user.UID}
 
   const accessToken = signAccessToken(accessPayload)
@@ -99,11 +103,29 @@ function clearTokens(res) {
   ])
 }
 
+function isAuth(){
+  return async (req,res,next)=>{
+     const {ACCESS_TOKEN} = req.cookies
+ 
+     const token = await verifyAccessToken(ACCESS_TOKEN)
+
+     if(token.type ==="ERROR") return res.status(401).json({name : token.name} )
+
+     req.user = token
+     next()
+     
+  }
+}
+
+ 
 module.exports = {
     clearTokens,
     refreshTokens,
     setTokens,
     buildTokens,
     verifyAccessToken,
-    verifyRefreshToken
+    verifyRefreshToken,
+    isAuth
 }
+
+ 
