@@ -6,10 +6,10 @@ const Productcard = ({image,name,mainCategory,price,rating,description}) => {
         <Card>
             <CardActionArea>
                 <CardMedia
-                component="img"
-                height="200"
-                image={`${image}`}
-                alt="green iguana"
+                    component="img"
+                    height="200"
+                    image={`${image}`}
+                    alt="green iguana"
                 />
                 <CardContent>
                 <Box sx={{display : "flex",alignItems : "center",justifyContent : "space-between"}}>
