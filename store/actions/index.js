@@ -1,4 +1,4 @@
-import {CHANGE_DARK_MODE,ADD_TO_CART, REMOVE_FROM_CART, REMOVE_ALL_CART, LOAD_CART_FROM_LOCAL_STORAGE, UPDATE_FROM_CART} from "./types"
+import {CHANGE_DARK_MODE,ADD_TO_CART, ADD_USER_INFO, REMOVE_FROM_CART, REMOVE_ALL_CART, UPDATE_FROM_CART, ADD_SHIPPING_ADDRESS, ADD_PAYMENT_METHOD, LOAD_STORE_FROM_LOCALSTORAGE} from "./types"
 
 /*
 * This function is used to chnage the DarkMode 
@@ -29,13 +29,14 @@ export function changeDarkMode(isDark){
 * 
 *  NOTE : Add to Cart Will Store The payload in localStorage
 */
-export function addToCart(product,quantity){
+export function addToCart(prefix , product,quantity){
 
     if(typeof product !== "object") throw new Error("the first argument must be an Object")
     if(typeof quantity !== "number") quantity = parseInt(quantity)
 
     return {
-        type : ADD_TO_CART,
+        type : ADD_TO_CART, 
+        prefix,
         payload : {
             product,
             quantity
@@ -44,11 +45,12 @@ export function addToCart(product,quantity){
 
 }
 
-export function updateToCart(productIndex,newQuantity){
+export function updateToCart(prefix,productIndex,newQuantity){
     return {
         type : UPDATE_FROM_CART,
         productIndex,
-        newQuantity
+        newQuantity,
+        prefix
     }
 }
 
@@ -62,10 +64,11 @@ export function updateToCart(productIndex,newQuantity){
 * 
 *  NOTE :Remove From Cart Will Also Uodate The Cart in localStorage
 */
-export function removeFromCart(productId){
+export function removeFromCart(prefix,productId){
     return {
         type : REMOVE_FROM_CART,
-        productId
+        prefix,
+        productId,
     }
 }
 
@@ -77,9 +80,10 @@ export function removeFromCart(productId){
 * 
 *  NOTE : this will also remove all the carts from localstorage
 */
-export function clearCart(){
+export function clearCart(prefix){
     return {
-        type : REMOVE_ALL_CART
+        type : REMOVE_ALL_CART,
+        prefix
     }
 }
 
@@ -90,8 +94,45 @@ export function clearCart(){
 *  1) object which carries action type to load the cart 
 * 
 */
-export function loadCartFromLocalStorage(){
+
+export function loadStoreFromLocalStorage(prefix){
+     
+    const store = {
+        darkMode : localStorage.getItem("darkMode") === "true" ? true : false,
+        cart : JSON.parse(localStorage.getItem(`${prefix}_cartItems`)) || [],
+        shippingAddress : JSON.parse(localStorage.getItem(`${prefix}_shippingAddress`) ) ,
+        paymentMethod : localStorage.getItem(`${prefix}_paymentMethod`) || null
+    }
+ 
     return {
-        type : LOAD_CART_FROM_LOCAL_STORAGE
+        type : LOAD_STORE_FROM_LOCALSTORAGE,
+        store
+    }
+}
+
+
+export function addShippingAddress(prefix,userAddress){
+    return {
+        type : ADD_SHIPPING_ADDRESS,
+        userAddress,
+        prefix
+    }
+}
+
+export function addPaymentMethod(prefix,paymentMethod){
+
+    return {
+        type : ADD_PAYMENT_METHOD,
+        paymentMethod,
+        prefix
+    }
+
+}
+
+
+export function addUserInfoAction(userInfo){
+    return {
+        type : ADD_USER_INFO,
+        userInfo
     }
 }

@@ -1,14 +1,17 @@
 import React,{ createContext , useReducer ,useEffect, useContext} from "react"; 
-import { changeDarkMode, loadCartFromLocalStorage } from "./actions";
-import { ADD_TO_CART,CHANGE_DARK_MODE, REMOVE_FROM_CART , REMOVE_ALL_CART, LOAD_CART_FROM_LOCAL_STORAGE, UPDATE_FROM_CART} from "./actions/types";
-
+import {loadStoreFromLocalStorage} from "./actions";
+import { ADD_USER_INFO,ADD_TO_CART,CHANGE_DARK_MODE, REMOVE_FROM_CART , REMOVE_ALL_CART, UPDATE_FROM_CART, ADD_SHIPPING_ADDRESS, ADD_PAYMENT_METHOD, LOAD_STORE_FROM_LOCALSTORAGE} from "./actions/types";
+import { useAuth } from "../auth/AuthContext";
 const Store = createContext()
 
 const initialState = {
     darkMode :  false,
     cart : [
         
-    ]
+    ],
+    shippingAddress : {},
+    paymentMethod : null,
+    userInfo : null
 } 
  
 export function useStore(){ 
@@ -24,68 +27,88 @@ function reducer(state , action){
                 ...state ,
                 darkMode : action.darkMode
             }
-        }
+        } 
 
-        case LOAD_CART_FROM_LOCAL_STORAGE : {
-            const cartItems = localStorage.getItem("cartItems")
-            if(typeof cartItems === "undefined") return {...state}
-            else
+        case LOAD_STORE_FROM_LOCALSTORAGE : { 
             return {
-               ...state,
-               cart : JSON.parse(cartItems)
+                ...state,
+                ...action.store
             }
         }
 
         case UPDATE_FROM_CART : { 
             const existsItem = {...state.cart[action.productIndex]} 
-
+            
             existsItem.quantity = action.newQuantity
 
             const newCart = state.cart.map((item)=>item.product._id === existsItem.product._id ? existsItem : item ) 
-  
-            localStorage.setItem("cartItems",JSON.stringify(newCart))
+            const prefix = action.prefix || ""
+            localStorage.setItem(`${prefix}_cartItems`,JSON.stringify(newCart))
             return {...state , cart : newCart} 
 
         }
 
         case ADD_TO_CART : { 
-            const newItem = action?.payload
-           // const existsItem  = state.cart.find(({product : {_id}})=> _id === newItem.product._id);
-           // var newCart = []
-            // if(existsItem){  
-            //     existsItem.quantity += newItem.quantity
-            //     // const countInStock = newItem?.product?.stocks.reduce((acc,item)=>acc + item.countInStock,0)
-            //     // if(existsItem.quantity > countInStock) existsItem.quantity = countInStock
-
-            //     newCart = state.cart.map((item)=>item.product._id === existsItem.product._id ? existsItem : item ) 
-            // }else{
-            //     newCart = [...state.cart ,    
-            //       newItem 
-            //     ] 
-            // }
- 
+            const prefix = action.prefix || ""
+            const newItem = action?.payload  
             const newCart = [...state.cart , newItem]
-            localStorage.setItem("cartItems",JSON.stringify(newCart))
+            localStorage.setItem(`${prefix}_cartItems`,JSON.stringify(newCart))
             return {...state , cart : newCart} 
         }
 
         case REMOVE_FROM_CART : {
+            const prefix = action.prefix || ""
             const cartItems = state.cart.filter((cartItem)=> cartItem.product._id !== action.productId)
-           localStorage.setItem("cartItems",JSON.stringify(cartItems))
+           localStorage.setItem(`${prefix}_cartItems`,JSON.stringify(cartItems))
             return {
                 ...state,
                 cart : cartItems
             }
         }
 
-        case REMOVE_ALL_CART : {
-            localStorage.removeItem("cartItems")
+        case REMOVE_ALL_CART : { 
+            const prefix = action.prefix || ""
+            localStorage.removeItem(`${prefix}_cartItems`)
             return {
                 ...state,
                 cart : []
             }
         }
 
+        case ADD_SHIPPING_ADDRESS : {
+            const prefix = action.prefix || ""
+            localStorage.setItem(`${prefix}_shippingAddress`,JSON.stringify(action.userAddress))
+            return {
+                ...state,
+                shippingAddress : {
+                    ...action.userAddress
+                }
+            }
+        }
+
+        case ADD_PAYMENT_METHOD : {
+            const prefix = action.prefix || ""
+            localStorage.setItem(`${prefix}_paymentMethod`,action.paymentMethod)
+
+            return {
+                ...state,
+                paymentMethod: action.paymentMethod
+            }
+        }
+
+        case ADD_USER_INFO : { 
+            
+            return {
+                ...state,
+                userInfo : {
+                    ...state.userInfo,
+                    ...action.userInfo
+                }
+            }
+        }
+ 
+
+       
         default : return state;
     }
 }
@@ -93,11 +116,10 @@ function reducer(state , action){
 export function StoreProvider({children}){
     const [state,dispatch] = useReducer(reducer , initialState)
     const value = {state,dispatch} 
-
-    useEffect(()=>{ 
-        dispatch(changeDarkMode(localStorage.getItem("darkMode") === "true" ? true : false))  
-        dispatch(loadCartFromLocalStorage())    
-    },[])
+    const {session} = useAuth()
+    useEffect(()=>{  
+        dispatch(loadStoreFromLocalStorage(session ? session.UID : null))   
+    },[session])
    
     return(
         <Store.Provider value={value}>
