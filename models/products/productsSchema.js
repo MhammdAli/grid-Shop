@@ -57,6 +57,12 @@ const productSchema = new mongoose.Schema({
         minlength : [30 , "description must be minimum 30 characters"],
         maxlength : [500]
     },
+    ItemDetails : {
+        type : [String]
+    },
+    article : {
+         type : String
+    }
 },{
     timestamps: true,
 })

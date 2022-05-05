@@ -1,5 +1,5 @@
 import {productModel} from "./productsSchema";
-import {createValidationError , createMongoDbServerError} from "../../utilities/MongodbErrors/MongoDBErrors";
+import {createValidationError , createMongoDbServerError} from "../../utilities/Errors/MongodbErrors/MongoDBErrors";
 
 /*
 * This function is used to add a product
@@ -53,6 +53,8 @@ export async function getProductBySlugName(slugName){
 }
 
 
-export async function getAllProducts(){
-    return await productModel.find({})
+export async function getAllProducts(filter , page , pageSize){
+    return  await productModel.find(
+        filter
+    ,{},{limit : pageSize,skip : page * pageSize , sort : {"createdAt" : -1}}).lean()
 }
