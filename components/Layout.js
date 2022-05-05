@@ -1,11 +1,12 @@
 import Head from "next/head"
 import React from 'react';
+import axios from "axios";
 // MATERIAL UI 
 import 
 {
     ThemeProvider ,AppBar,
     Toolbar, 
-    IconButton, Button, Box, Menu, MenuItem, Avatar, Collapse, MenuList, CssBaseline,createTheme,Badge
+    IconButton, Button, Box, Menu, MenuItem, Avatar, Collapse, MenuList, CssBaseline,Badge
 } from "@mui/material";
 import 
 {
@@ -22,20 +23,19 @@ import {
 //////////////////////////////////////////////////
 import MenuIcon from "@mui/icons-material/Menu"   
 //import theme from "../themes/theme"
-
 import CustomLink from "../utilities/customRouting"; 
 import { useRouter } from "next/router";
-import { useStore } from "../store/store"
-import {changeDarkMode} from "../store/actions" 
-import {useAuth,logOut} from "../auth/AuthContext"
+import { useStore } from "../store/store";
+import {addUserInfoAction} from "../store/actions";
+import {changeDarkMode} from "../store/actions";
+import {useAuth,logOut} from "../auth/AuthContext";
+import { useTheme } from "../themes/theme";
 const Layout = ({children}) => {
     
     const listmenu = [
-        {name : "Home", slugName : ""},
-        {name : "Docs" , slugName : "docs"},
+        {name : "Home", slugName : ""}, 
         {name : "Products",slugName : "products"},
-        {name : "About Us",slugName : "about-Us"},
-        {name : "Blog",slugName : "blogs"}
+        {name : "About Us",slugName : "about-Us"}
     ]
 
     
@@ -53,49 +53,29 @@ const Layout = ({children}) => {
         localStorage.setItem("darkMode",!state.darkMode )
     }
 
-    const theme =  createTheme({
-        palette : {
-            mode : state.darkMode ? "dark" : "light",
-            navBar : {
-               main : "#fff",
-               contrastText : "#000"
-            },
-            primary : {
-                main : "#007fff",
-                contrastText : "#fff",
-                primaryText : "#007fff"
-            },
-            secondary : {
-                main : "#208080"
-            }
-        },
-        typography : { 
-            h1 : {
-                fontSize : '1.6rem',
-                fontWeight : 400,
-                margin : "1rem 0"
-            },
-            h2 : {
-                fontSize : '1.4rem',
-                fontWeight : 400,
-                margin : "1rem 0"
-            },
-            CustomLink : { 
-                color : "#fff",
-                textDecoration : "underline",
-                fontSize : 24
-            }
-          
-        }
-    })
+    const {theme} = useTheme(state.darkMode)
 
+    React.useEffect(()=>{ 
+        if(status === "AUTHENTICATED"){  
+             
+            axios.get("/api/users/me")
+            .then(({data})=>{   
+                dispatch(addUserInfoAction(data))
+            })
+            .catch(err=>{
+                console.log(err)
+            })
+        }
+    },[])
+     
     return (
         <>  
             <Head>
                 <title>Grid Shop</title>
             </Head>
 
-            <ThemeProvider theme={theme}> <CssBaseline/>  
+            <ThemeProvider theme={theme}> 
+                <CssBaseline/>  
                 <AppBar position="sticky" color="navBar">
                     <Toolbar variant="dense" sx={{pl : {md : 5} , pr : {md : 5}}}>
                         <Box sx={{mr : 2}}>
@@ -147,7 +127,7 @@ const Layout = ({children}) => {
                                 ?   <>
 
                                  
-                                        <Avatar src="/header.png" sx={{ width: 30, height: 30 ,ml : 1 , mr : {xs : 1,md : 0}}} onClick={({currentTarget})=>{setOpenAvatarmenu(currentTarget)}} alt="user image"/>     
+                                        <Avatar src={state.userInfo && `/images/${state.userInfo.imageUrl}`} sx={{ width: 30, height: 30 ,ml : 1 , mr : {xs : 1,md : 0}}} onClick={({currentTarget})=>{setOpenAvatarmenu(currentTarget)}} alt="user image"/>     
                                      
                                         <Menu
                                             open={Boolean(openAvatarMenu)}
@@ -159,7 +139,9 @@ const Layout = ({children}) => {
                                                 }
                                             }}
                                         >
-                                            <MenuItem dense onClick={()=>{setOpenAvatarmenu(null)}}>View profile</MenuItem>
+                                            
+                                            <MenuItem dense onClick={()=>{setOpenAvatarmenu(null);router.push("/profile") }}>View profile</MenuItem>
+                                            <MenuItem dense onClick={()=>{setOpenAvatarmenu(null);router.push("/order/orderHistory") }}>Order History</MenuItem>
                                             <MenuItem dense onClick={()=>{
                                                  setOpenAvatarmenu(null)
                                                  logOut().then(()=>{
