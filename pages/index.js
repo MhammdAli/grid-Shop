@@ -1,13 +1,15 @@
 import { Box,Container, Grid, Typography , Button , Divider} from '@mui/material';   
+import React , {useState} from "react"
 import CustomLink from "../utilities/customRouting";
 import { getSession } from '../auth/session';
 import Productcard from '../components/productCard';
 import { getTopProducts } from '../models/products/products';
 import Sectionsplitter from '../components/sectionSplitter';
-import { connect } from '../config/dbConn';
-import {convertDocToObject} from "../utilities/converter";
-export default function Home({topProducts}) {
+import { connect } from '../config/dbConn'; 
+export default function Home({topProductsProps}) {
  
+   const [ topProducts ] = useState(JSON.parse(topProductsProps))
+    
   return (
        <Container>
           <Grid container sx={{alignItems : "center" , minHeight : 300 , mb : 6, mt : 2}} spacing={2}>
@@ -39,7 +41,7 @@ export default function Home({topProducts}) {
              <Grid container spacing={2} sx={{mt : 2}}>
                 { topProducts.map((product,index)=>(
                      <Grid item md={3} key={index}>
-                        <CustomLink route={`/product/${product.slugName}`} disableDecoration>
+                        <CustomLink route={`/products/${product.slugName}`} disableDecoration>
                            <Productcard
                               image={product.image}
                               name = {product.name}
@@ -76,14 +78,14 @@ export default function Home({topProducts}) {
 export async function getServerSideProps(context){
    await connect();
    const session = await getSession(context);
-   
+    
    const topProducts =  await getTopProducts(0,10);
     
-
+  
    return {
       props : {
          session : (session.type === "SUCCESS") ? session.token : null,
-         topProducts : topProducts.map(convertDocToObject)
+         topProductsProps : JSON.stringify(topProducts)
       }
    }
 
