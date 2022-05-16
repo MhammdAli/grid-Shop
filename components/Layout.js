@@ -44,7 +44,7 @@ const Layout = ({children}) => {
     const [openAvatarMenu , setOpenAvatarmenu] = React.useState(null)
     const router = useRouter()
  
-    const {status} = useAuth()
+    const {session, status} = useAuth()
      
     const {state , dispatch} = useStore()
    
@@ -66,8 +66,10 @@ const Layout = ({children}) => {
                 console.log(err)
             })
         }
+ 
     },[])
      
+    
     return (
         <>  
             <Head>
@@ -141,6 +143,9 @@ const Layout = ({children}) => {
                                         >
                                             
                                             <MenuItem dense onClick={()=>{setOpenAvatarmenu(null);router.push("/profile") }}>View profile</MenuItem>
+                                            {session?.isAdmin &&
+                                            <MenuItem dense onClick={()=>{setOpenAvatarmenu(null);router.push("/admin/products") }}>Admin Page</MenuItem>
+                                            }
                                             <MenuItem dense onClick={()=>{setOpenAvatarmenu(null);router.push("/order/orderHistory") }}>Order History</MenuItem>
                                             <MenuItem dense onClick={()=>{
                                                  setOpenAvatarmenu(null)

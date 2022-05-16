@@ -64,7 +64,7 @@ const Datagrid = ({ ActionLeft , ActionRight,rows , columns , rowsPerPageOptions
 
                             { ActionRight &&
                                 React.cloneElement(ActionRight,{onClick:function(){
-                                    if(ActionRight.props.onClick) ActionLeft.props.onClick.call(this,row)
+                                    if(ActionRight.props.onClick) ActionRight.props.onClick.call(this,row)
                                 }})
                             }
                         </TableCell>
@@ -186,7 +186,7 @@ const Datagrid = ({ ActionLeft , ActionRight,rows , columns , rowsPerPageOptions
 
 
     function refreshAll(){
-
+        
     }
     return (
         <>

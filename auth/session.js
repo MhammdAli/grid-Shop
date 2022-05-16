@@ -37,7 +37,7 @@ export async function getSession({req,res}){
         // if user is nit exists maybe he is delete his user but token is valid
         if(!user) return {type : "ERROR",name : "USER_NOT_EXISTS"}
         
-        const {accessToken,refreshToken} = refreshTokens(getRefreshToken)
+        const {accessToken,refreshToken} = refreshTokens(user,getRefreshToken.exp)
  
     
         setTokens(res,accessToken,refreshToken)
