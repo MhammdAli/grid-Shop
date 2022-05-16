@@ -102,7 +102,7 @@ export function deleteUser(id){
 */
 export async function getUserById(id){
     if(typeof id !== "string" && typeof id !== "number") throw new Error("id must be a string or a number")
-    return await UserModel.findById(id,{__v : 0})
+    return await UserModel.findById(id,{__v : 0}).lean()
 }  
 
 
@@ -124,4 +124,26 @@ export async function getUsers(filter,page , pageSize){
     return  await UserModel.find(
         filter
     ,{},{limit : pageSize,skip : page * pageSize}).lean()
+}
+ 
+export async function updateUserPrivilages(id,privileges){
+    if(typeof id !== "string" && typeof id !== "number") throw new Error("id must be a string or a number")
+    if(!Array.isArray(privileges)) throw new Error("privileges must be a object")
+    
+    return new Promise((resolve , reject)=>{
+
+       UserModel.findByIdAndUpdate(id,{"$set" : {"roles" : privileges}},{runValidators : true},function(err,result){
+
+           if(err){ 
+               if(err.name === 'ValidationError') return reject(createValidationError(err))
+               if(err.name === "MongoServerError") return reject(createMongoDbServerError(err))
+               if(err.name === "CastError") return reject({err : "Casting error"})
+               return reject(err)
+           }
+           
+           resolve(result)
+           
+       })
+
+    })
 }

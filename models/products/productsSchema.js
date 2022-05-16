@@ -1,17 +1,22 @@
 import mongoose from "mongoose"
-import { StockSchema } from "../Stocks/stocksSchema"
-
-
-const CategorySchema = new mongoose.Schema({
-    main : {
+ 
+const StockSchema = new mongoose.Schema({
+    stockName : {
         type : String,
-        required : [true,"Main Category is required"]
+        required : [true , "Stock name must be specified"]
     },
-    sub : {
+    product_ID : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Product'
+    },
+    countInStock : {
+        type : Number,
+        default : 0
+    },
+    branchAddress : {
         type : String
     }
-    
-},{"_id" : false,versionKey : false})
+},{_id : false})
 
 const productSchema = new mongoose.Schema({
     name : {
@@ -23,7 +28,15 @@ const productSchema = new mongoose.Schema({
         required : [true,"Slug Name is required"], 
         unique : true
     },
-    category : CategorySchema,
+    category : {
+        main : {
+        type : String,
+        required : [true,"Main Category is required"]
+    },
+    sub : {
+        type : String
+    }
+    },
     image : {
         type : String,
         required : [true,"image Name is required"]
