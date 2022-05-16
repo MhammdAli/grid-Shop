@@ -100,8 +100,7 @@ const AdminLayout = ({children,Title}) => {
     const handleDrawerClose = () => {
         setOpen(false);
     };
-    
-
+     
     const ListItems = [ 
         {
             name : 'Add Products',
