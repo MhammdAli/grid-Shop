@@ -10,6 +10,7 @@ import { getProductBySlugName } from '../../models/products/products';
 import { connect } from '../../config/dbConn';
 import {useRouter} from "next/router";
 import {useAuth} from "../../auth/AuthContext"
+import Layout from '../../components/Layout';
 const Productid = ({productProps}) => {
  
     const [SnackMessage , setSnackMessage] = useState({isError : false , message : null}) 
@@ -76,134 +77,137 @@ const Productid = ({productProps}) => {
 
      
     return (
-        <Container sx={{my : 1.5}}> 
+        <Layout>
+            <Container sx={{my : 1.5}}> 
 
-            <Snackbar open={Boolean(SnackMessage.message)}  sx={{
-                "& .MuiPaper-root" : {
-                    backgroundColor : SnackMessage.isError ? "error.main" : "success.main"
-                }
-            }} autoHideDuration={100000} onClose={handleSnackBarClose} action={action} message={SnackMessage.message} anchorOrigin={{vertical: 'top',horizontal: 'center'}} />
-                
-            <Button onClick={()=>{ 
-                router.back()
-            }}>
-                 <ArrowBackIcon sx={{pt : "4px",fontSize : 20}}/> back to products 
-            </Button>
-                      
-            <Grid container spacing={1} sx={{my : 1.5}}>
-                <Grid item md={6} xs={12}>
-                    <Image priority={true} src={'/header.png'} alt="priducts" width={440} height={340} layout="responsive"></Image>
-                </Grid>
-                <Grid item md={6} xs={12}>
-                    <Grid container>
-                        <Grid item md={6} xs={12}>
-                            <List>
-                                <ListItem>
-                                    <Typography variant="h1">
-                                        {product.name}
-                                    </Typography>
-                                </ListItem>
-                                <ListItem>
-                                    <Typography>
-                                        Category : {product?.category?.main}
-                                    </Typography>
-                                </ListItem>
-                                <ListItem>
-                                    <Typography>
-                                        Brand : {product.brand}
-                                    </Typography>
-                                </ListItem>
-                                <ListItem>
-                                    <Typography>
-                                        Rating : {product.rating}  stars of {product.numReviews} (reviews)
-                                    </Typography>
-                                </ListItem>
-                            </List>
-                        </Grid>
-                        <Grid item md={6} xs={12}>
-                            <Card>
+                <Snackbar open={Boolean(SnackMessage.message)}  sx={{
+                    "& .MuiPaper-root" : {
+                        backgroundColor : SnackMessage.isError ? "error.main" : "success.main"
+                    }
+                }} autoHideDuration={100000} onClose={handleSnackBarClose} action={action} message={SnackMessage.message} anchorOrigin={{vertical: 'top',horizontal: 'center'}} />
+                    
+                <Button onClick={()=>{ 
+                    router.back()
+                }}>
+                    <ArrowBackIcon sx={{pt : "4px",fontSize : 20}}/> back to products 
+                </Button>
+                        
+                <Grid container spacing={1} sx={{my : 1.5}}>
+                    <Grid item md={6} xs={12}>
+                        <Image priority={true} src={'/header.png'} alt="priducts" width={440} height={340} layout="responsive"></Image>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Grid container>
+                            <Grid item md={6} xs={12}>
                                 <List>
                                     <ListItem>
-                                        <Grid container>
-                                            <Grid item><Typography>Price : </Typography></Grid>
-                                            <Grid item><Typography>{product.price}</Typography></Grid>
-                                        </Grid>
+                                        <Typography variant="h1">
+                                            {product.name}
+                                        </Typography>
                                     </ListItem>
                                     <ListItem>
-                                        <Grid container>
-                                            <Grid item><Typography>status : </Typography></Grid>
-                                            <Grid item><Typography>in stock but calculated</Typography></Grid>
-                                        </Grid>
+                                        <Typography>
+                                            Category : {product?.category?.main}
+                                        </Typography>
                                     </ListItem>
-                                    {product?.stocks?.length > 0 ?
-                                        <>
-                                            <ListItem>
-                                                Quantity :
-                                            </ListItem>
-                                            <ListItem>
-                                                
-                                                <Slider
-                                                    aria-label="Temperature"
-                                                    defaultValue={1} 
-                                                    valueLabelDisplay="auto"
-                                                    step={1}
-                                                    marks
-                                                    min={1}
-                                                    onChange={(event,value)=>{
-                                                        setQuantity(value)
-                                                    }}
-                                                    max={maxQuantity}
-                                                />
-                                            </ListItem>
-                                        </>
-                                    :
-                                    <ListItem sx={{color : "info.main"}}>
-                                        Not Availabel In Stock
-                                    </ListItem>}
-                                    <ListItem >
-                                        <Button fullWidth variant="contained" onClick={addToCartAction}>Add To Cart</Button>
+                                    <ListItem>
+                                        <Typography>
+                                            Brand : {product.brand}
+                                        </Typography>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Typography>
+                                            Rating : {product.rating}  stars of {product.numReviews} (reviews)
+                                        </Typography>
                                     </ListItem>
                                 </List>
-                            </Card>
-                        </Grid>
+                            </Grid>
+                            <Grid item md={6} xs={12}>
+                                <Card>
+                                    <List>
+                                        <ListItem>
+                                            <Grid container>
+                                                <Grid item><Typography>Price : </Typography></Grid>
+                                                <Grid item><Typography>{product.price}</Typography></Grid>
+                                            </Grid>
+                                        </ListItem>
+                                        <ListItem>
+                                            <Grid container>
+                                                <Grid item><Typography>status : </Typography></Grid>
+                                                <Grid item><Typography>in stock but calculated</Typography></Grid>
+                                            </Grid>
+                                        </ListItem>
+                                        {product?.stocks?.length > 0 ?
+                                            <>
+                                                <ListItem>
+                                                    Quantity :
+                                                </ListItem>
+                                                <ListItem>
+                                                    
+                                                    <Slider
+                                                        aria-label="Temperature"
+                                                        defaultValue={1} 
+                                                        valueLabelDisplay="auto"
+                                                        step={1}
+                                                        marks
+                                                        min={1}
+                                                        onChange={(event,value)=>{
+                                                            setQuantity(value)
+                                                        }}
+                                                        max={maxQuantity}
+                                                    />
+                                                </ListItem>
+                                            </>
+                                        :
+                                        <ListItem sx={{color : "info.main"}}>
+                                            Not Availabel In Stock
+                                        </ListItem>}
+                                        <ListItem >
+                                            <Button fullWidth variant="contained" onClick={addToCartAction}>Add To Cart</Button>
+                                        </ListItem>
+                                    </List>
+                                </Card>
+                            </Grid>
 
-                        <Grid item md={12}>
-                            <ListItem>
-                                <Typography>Description : </Typography> 
-                            </ListItem>
-                            <ListItem>
-                                <Typography>
-                                    {product.description}
-                                </Typography>
-                            </ListItem>
-                        </Grid>
+                            <Grid item md={12}>
+                                <ListItem>
+                                    <Typography>Description : </Typography> 
+                                </ListItem>
+                                <ListItem>
+                                    <Typography>
+                                        {product.description}
+                                    </Typography>
+                                </ListItem>
+                            </Grid>
 
+                        </Grid>
                     </Grid>
-                </Grid>
 
-                {product?.ItemDetails &&
-                <Grid item>
-                    <List>
-                        <ListItem>
-                            <Typography variant="h2">Order Details:</Typography>
-                        </ListItem>
-                    {product?.ItemDetails.map((eachDetail , index)=>{
-                            return (
-                                <>
-                                <ListItem key={index}>
-                                {eachDetail}
-                                </ListItem>  
-                                </>
-                            )
-                        }) 
-                    } 
-                    </List>
+                    {product?.ItemDetails &&
+                    <Grid item>
+                        <List>
+                            <ListItem>
+                                <Typography variant="h2">Order Details:</Typography>
+                            </ListItem>
+                        {product?.ItemDetails.map((eachDetail , index)=>{
+                                return (
+                                    <>
+                                    <ListItem key={index}>
+                                    {eachDetail}
+                                    </ListItem>  
+                                    </>
+                                )
+                            }) 
+                        } 
+                        </List>
+                        
+                    </Grid>
+                    }
                     
                 </Grid>
-                }
-                 
-            </Grid>
-        </Container>
+            </Container>
+            
+        </Layout>
     );
 }
 

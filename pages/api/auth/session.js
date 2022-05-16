@@ -1,5 +1,14 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import {verifyAccessToken} from "../../../utilities/tokens_utilities"
+
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
+
+
 handler.post((req,res)=>{
  
     

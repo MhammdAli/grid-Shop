@@ -1,9 +1,16 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import {connect} from "../../../config/dbConn"
 import {updateOrder}  from "../../../models/order/order"
-import {handler} from "../../../middlewares/errorMiddlewares"
 import  {isAuth} from "../../../utilities/tokens_utilities"
 import axios from "axios"
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
+
 handler.use(isAuth())
 
 handler.get(async (req,res)=>{ 

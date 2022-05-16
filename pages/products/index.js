@@ -5,6 +5,7 @@ import EndMsg from "../../components/EndMsg";
 import axios from "axios";
 import { Container, Grid } from "@mui/material"; 
 import Itemcard from "../../components/ItemCard";
+import Layout from "../../components/Layout";
 function Products() {
 
 
@@ -47,6 +48,7 @@ function Products() {
   
   return (
     
+    <Layout>
       <Container>
           
         <Grid container sx={{mt : 2,justifyContent:"center"}}> 
@@ -91,6 +93,7 @@ function Products() {
           </Grid>
         </Grid>
         </Container>
+    </Layout>
   );
 }
 

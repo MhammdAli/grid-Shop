@@ -5,6 +5,7 @@ import { getSession } from '../auth/session';
 import { createUser } from '../auth/AuthContext';
 import { useRouter } from 'next/router';
 import { connect } from '../config/dbConn';
+import Layout from '../components/Layout';
 const Registration = () => {
 
    
@@ -52,7 +53,7 @@ const Registration = () => {
  
  
     return (  
-        <>
+        <Layout>
            {loading && <LinearProgress/>}
         <Box sx={{maxWidth : 500,my : 10,mx : "auto",px:2}}>
             <form onSubmit={handleRegistration}>
@@ -92,7 +93,7 @@ const Registration = () => {
                     <Button fullWidth variant="contained" sx={{my : 2,borderRadius : 0}} type="submit">Sign Up</Button>
             </form>
         </Box> 
-        </>
+        </Layout>
 
     );
 }

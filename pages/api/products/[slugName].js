@@ -1,6 +1,12 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect  } from "../../../config/dbConn"
 import {getProductBySlugName} from "../../../models/products/products" 
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
 
 handler.get(async (req,res)=>{
    

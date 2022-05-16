@@ -1,8 +1,17 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect  } from "../../../config/dbConn"
 import {setTokens , refreshTokens , verifyRefreshToken,clearTokens} from "../../../utilities/tokens_utilities"
 import {getUserById} from "../../../models/users/users"
 import {createError} from "../../../utilities/Errors/CustomErrors"
+
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
+
+
 handler.post(async (req,res)=>{
  
     try{

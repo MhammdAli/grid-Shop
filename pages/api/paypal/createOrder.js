@@ -1,9 +1,16 @@
 import {connect,disconnect} from "../../../config/dbConn";
-import {getOrderById}  from "../../../models/order/order";
-import {handler} from "../../../middlewares/errorMiddlewares";
+import {getOrderById}  from "../../../models/order/order"; 
 import  {isAuth} from "../../../utilities/tokens_utilities";
 import axios from "axios";  
 import { BODY, validate} from "../../../utilities/Validation";
+
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
 
 
 handler.use(isAuth())

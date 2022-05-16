@@ -7,6 +7,7 @@ import { getSession } from '../auth/session';
 import {useRouter} from "next/router";
 import { signIn } from '../auth/AuthContext';
 import { connect } from '../config/dbConn'; 
+import Layout from '../components/Layout';
 const Signin = () => {
  
     const [error,setError] = React.useState(null)
@@ -39,26 +40,28 @@ const Signin = () => {
     }
  
     return ( 
-        <Box sx={{maxWidth : 500,my : 10,mx : "auto",px : 2}}>  
-            <form onSubmit={handleForm}>
-                <Typography variant="h5" align='center' sx={{my : 2}}>LOGIN</Typography>
-                    {error && <Alert severity="error">{error}</Alert>}
-                    <TextField
-                    type="email"
-                    required variant="outlined" label="Email" margin="normal" fullWidth size="small" name="email"  /> 
-                    <TextField
-                    type="password"
-                    required variant="outlined" label="password" margin="normal" fullWidth size="small" name="password"
-                    /> 
-                    <FlexBox> 
-                        <FormControlLabel control={<Checkbox />} label="Remember Me" name="rememberMe"/>
-                        <CustomLink route="/forget" disableDecoration>
-                            Forget?
-                        </CustomLink>
-                    </FlexBox>
-                    <Button fullWidth variant="contained" sx={{my : 2,borderRadius : 0}} type="submit">LOGIN</Button>
-            </form> 
-        </Box> 
+        <Layout>
+            <Box sx={{maxWidth : 500,my : 10,mx : "auto",px : 2}}>  
+                <form onSubmit={handleForm}>
+                    <Typography variant="h5" align='center' sx={{my : 2}}>LOGIN</Typography>
+                        {error && <Alert severity="error">{error}</Alert>}
+                        <TextField
+                        type="email"
+                        required variant="outlined" label="Email" margin="normal" fullWidth size="small" name="email"  /> 
+                        <TextField
+                        type="password"
+                        required variant="outlined" label="password" margin="normal" fullWidth size="small" name="password"
+                        /> 
+                        <FlexBox> 
+                            <FormControlLabel control={<Checkbox />} label="Remember Me" name="rememberMe"/>
+                            <CustomLink route="/forget" disableDecoration>
+                                Forget?
+                            </CustomLink>
+                        </FlexBox>
+                        <Button fullWidth variant="contained" sx={{my : 2,borderRadius : 0}} type="submit">LOGIN</Button>
+                </form> 
+            </Box>  
+        </Layout>
     );
 }
 

@@ -1,9 +1,20 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect  } from "../../../config/dbConn"
 import {getUsers} from "../../../models/users/users"  
 import  {isAuth} from "../../../utilities/tokens_utilities"
-import { validate , isUndefined} from "../../../utilities/Validation";
+import { validate } from "../../../utilities/Validation";
+
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+import { handleDateOperator , handleTextOperator} from "../../../utilities/mongoOperators";
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
  
+ 
+
+
 handler.use(isAuth())
 
 
@@ -28,41 +39,52 @@ handler.use(validate({
             message : "no permission"
         }
     },
-    fname : {
-        path : "firstName",
-        omit : [isUndefined]
+    firstName : {
+        path : "firstName", 
+        calculated : (field , operator , value)=>{
+            return handleTextOperator("firstName",operator,value)
+        }
     },
-    lname : {
+    lastName : {
         path : "lastName",
-        omit : [isUndefined]
+        calculated : (field , operator , value)=>{
+            return handleTextOperator("lastName",operator,value)
+        }
     },
     email : {
         path : "email",
-        omit : [isUndefined]
+        calculated : (field , operator , value)=>{
+            return handleTextOperator("email",operator,value)
+        }
     },
     createdAt : {
         path : "createdAt",
-        omit : [isUndefined]
+        calculated : (field , operator , value)=>{
+            return handleDateOperator("createdAt",operator,value)
+        }
     },
     updatedAt : {
-        path : "updatedAt",
-        omit : [isUndefined]
-    }
+        path : "createdAt",
+        calculated : (field , operator , value)=>{
+            return handleDateOperator("updatedAt",operator,value)
+        }
+    },
 }))
 
 handler.get(async (req,res)=>{
     
   if(req.result.type === "ERROR") return res.json(req.result)
-
+ 
   await connect()
  
   const {
      page,
      pageSize
-  } = req.query
-   
+  } = req.query 
+
   try{
     const user = await getUsers(req.result.search,page , pageSize)
+    
     res.json(user)
   }catch(err){
         res.json(err)

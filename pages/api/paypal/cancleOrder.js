@@ -1,5 +1,12 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import  {isAuth} from "../../../utilities/tokens_utilities"
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
+
 
 handler.use(isAuth())
 

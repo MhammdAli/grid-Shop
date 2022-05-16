@@ -10,6 +10,7 @@ import {updateToCart} from "../store/actions"
 import { useRouter } from 'next/router';
 import {useAuth} from "../auth/AuthContext"; 
 import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt';
+import Layout from '../components/Layout';
 const Cart = () => {
   
     const router = useRouter()
@@ -35,6 +36,7 @@ const Cart = () => {
     
  
     return (
+        <Layout>
         <Container>
             <Sectionsplitter title="Shopping Cart" width={100} variant="h5" sx={{my : 2}}/>
 
@@ -118,7 +120,8 @@ const Cart = () => {
                 </Grid>
             </Grid>
 
-        </Container> 
+        </Container>  
+        </Layout>
     );
 }
 

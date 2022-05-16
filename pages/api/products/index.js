@@ -1,8 +1,16 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect  } from "../../../config/dbConn"
 import {getAllProducts} from "../../../models/products/products" 
-import {validate,isUndefined} from "../../../utilities/Validation"
- 
+import {validate} from "../../../utilities/Validation"
+import { handleTextOperator} from "../../../utilities/mongoOperators";
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
+
+
 handler.use(validate({
     page : { 
         required : [true,"page is required"],
@@ -20,15 +28,21 @@ handler.use(validate({
     },
     mainCategory : {
         path : "category.main",
-        omit : [isUndefined]
+        calculated : (field , operator , value)=>{
+            return handleTextOperator("category.main",operator,value)
+        }
     },
     subCategory : {
-        path : "category.sub",
-        omit : [isUndefined]
+        path : "category.sub", 
+        calculated : (field , operator , value)=>{
+            return handleTextOperator("category.sub",operator,value)
+        }
     },
     name : {
         path : "name",
-        omit : [isUndefined]
+        calculated : (field , operator , value)=>{
+            return handleTextOperator("name",operator,value)
+        }
     }
 }))
 
@@ -53,5 +67,7 @@ handler.get(async (req,res)=>{
     }
  
 })
+
+
 
 export default handler;

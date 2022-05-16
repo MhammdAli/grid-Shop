@@ -1,5 +1,4 @@
-import '../styles/globals.css'
-import Layout from '../components/Layout' 
+import '../styles/globals.css'  
 import { StoreProvider } from '../store/store'
 import {AuthProvider} from "../auth/AuthContext"
 function MyApp({ Component, pageProps}) {
@@ -7,9 +6,7 @@ function MyApp({ Component, pageProps}) {
   return ( 
     <AuthProvider session={pageProps.session}>
       <StoreProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout> 
+          <Component {...pageProps} /> 
       </StoreProvider>
     </AuthProvider> 
   )

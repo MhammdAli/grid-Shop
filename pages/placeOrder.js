@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import Checkoutwizard from "../components/CheckOutWizard";
 import axios from "axios"; 
 import { clearCart } from '../store/actions';
+import Layout from "../components/Layout";
 import { useAuth } from '../auth/AuthContext';
 import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt';
 import { calculateShippingPrice, calculateTax , formatToCurrency } from '../utilities/calculations';
@@ -99,7 +100,7 @@ const PlaceOrder = () => {
     },[state.cart])
 
     return (
-        <>
+        <Layout>
          
         <Container> 
             <Checkoutwizard activeStep={3} sx={{my : 2}}/>
@@ -261,7 +262,7 @@ const PlaceOrder = () => {
             </Grid>
 
         </Container> 
-        </>
+        </Layout>
     );
 }
 

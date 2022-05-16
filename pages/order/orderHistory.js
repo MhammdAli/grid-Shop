@@ -6,6 +6,7 @@ import DataGrid from '../../components/DataGrid';
 import { connect } from '../../config/dbConn';
 import {getOrders} from "../../models/order/order";
 import {useRouter} from "next/router";
+import Layout from '../../components/Layout';
 
 const Orderhistory = ({rowsProps}) => {
 
@@ -73,53 +74,55 @@ const Orderhistory = ({rowsProps}) => {
   
 
     return (
-        <Container>
-            <Typography variant="h1">Order History</Typography>
-            <DataGrid
-               rows={JSON.parse(rowsProps)}
-               columns={columns} 
-               rowsPerPageOptions={[5,10,20]}
-               onPageNext={async function(pageNb,rowsPerPage){ 
-                   const data = await fetchOrders(pageNb,rowsPerPage) 
-                   
-                   return data
-               }}
-               onSearch = {async(payload,rowsPerPage)=>{
-                    const {
-                        field,
-                        value,
-                        operator
-                    } = payload
+        <Layout>
+            <Container>
+                <Typography variant="h1">Order History</Typography>
+                <DataGrid
+                    rows={JSON.parse(rowsProps)}
+                    columns={columns} 
+                    rowsPerPageOptions={[5,10,20]}
+                    onPageNext={async function(pageNb,rowsPerPage){ 
+                        const data = await fetchOrders(pageNb,rowsPerPage) 
+                        
+                        return data
+                    }}
+                    onSearch = {async(payload,rowsPerPage)=>{
+                            const {
+                                field,
+                                value,
+                                operator
+                            } = payload
 
 
-                    console.log({field,
-                        value,
-                        operator})
+                            console.log({field,
+                                value,
+                                operator})
 
-                   
-                    const queryString = (`${field}=${value}` + ( operator ? `&pattern=${field}:${operator}` : ''))
-                     
-                    try{
-                      const data = await fetchOrders(0,rowsPerPage,queryString) 
-                      return data || []
-                    }catch(err){
-                        return []
+                        
+                            const queryString = (`${field}=${value}` + ( operator ? `&pattern=${field}:${operator}` : ''))
+                            
+                            try{
+                            const data = await fetchOrders(0,rowsPerPage,queryString) 
+                            return data || []
+                            }catch(err){
+                                return []
+                            }
+                            
+                        
+                    }} 
+
+                    ActionLeft={
+                        <Button variant="contained" sx={{mx:2}} size='small' onClick={(row)=>{
+                            router.push(`/order/${row._id}`)
+                        }}>View</Button>
                     }
                     
-                   
-               }} 
-
-               ActionLeft={
-                  <Button variant="contained" sx={{mx:2}} size='small' onClick={(row)=>{
-                    router.push(`/order/${row._id}`)
-                   }}>View</Button>
-               }
-               
-            >
-                
-                
-            </DataGrid>
-        </Container>
+                    >
+                        
+                    
+                </DataGrid>
+            </Container> 
+        </Layout>
     );
 }
 export async function getServerSideProps(context) {

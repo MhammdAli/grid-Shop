@@ -1,10 +1,18 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect, disconnect  } from "../../../config/dbConn"
 import {addOrder, getOrders} from "../../../models/order/order" 
 import {validate} from "../../../utilities/Validation"
 import { productModel } from "../../../models/products/productsSchema"
 import  {isAuth} from "../../../utilities/tokens_utilities" 
 import {handleDateOperator, handleNumbersOperator} from "../../../utilities/mongoOperators"
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
+
+
 handler.use(isAuth())
 handler.post(async (req,res)=>{ 
  
@@ -114,7 +122,7 @@ handler.use(validate({
 handler.get(async (req,res)=>{  
     
     if(req.result.type === "ERROR") return res.json(req.result)
-  
+   
     const {
         page ,
         pageSize

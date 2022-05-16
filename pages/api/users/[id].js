@@ -1,14 +1,37 @@
-import {handler} from "../../../middlewares/errorMiddlewares"
 import { connect  } from "../../../config/dbConn"
 import {deleteUser, getUserById, updateById} from "../../../models/users/users"  
 import  {isAuth,clearTokens} from "../../../utilities/tokens_utilities"
 import {  QUERY, validate} from "../../../utilities/Validation";
 import multer from "multer";
 import fs from "fs";
+
+import nc from "next-connect";
+import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+
+const handler = nc({
+    onNoMatch : NoMatchEndpoint,
+    onError : errorHandler
+})
+
+
 handler.use(isAuth())
+
+handler.use(validate({
+  id : {
+    match : {
+      validator : function(id){
+          // this is refer to user credintials (decoded token) it is depend on isAuth function
+          return this.UID === id || this.isAdmin || id === "me"
+      },
+      message : "no permission to call this api"
+    }
+  }
+},QUERY))
  
 handler.get(async (req,res)=>{
      
+  if(req.result.type === "ERROR") return res.status(403).json(req.result)
+
   await connect()
     
   const {
@@ -23,22 +46,11 @@ handler.get(async (req,res)=>{
   }
   
 })
-
-handler.use(validate({
-  id : {
-    match : {
-      validator : function(id){
-          // this is refer to user credintials (decoded token) it is depend on isAuth function
-          return this.UID === id || this.isAdmin || id === "me"
-      },
-      message : "no permission to call this api"
-    }
-  }
-},QUERY))
+ 
 
 handler.delete(async (req,res)=>{
 
-  if(req.result.type === "ERROR") return res.json(req.result)
+  if(req.result.type === "ERROR") return res.status(403).json(req.result)
 
   await connect()
       
