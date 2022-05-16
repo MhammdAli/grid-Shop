@@ -76,18 +76,18 @@ function setTokens(res, access, refresh) {
   res.setHeader("Set-Cookie",tokens)
 }
 
-function refreshTokens(current) {
+function refreshTokens(user,refreshExp) {
  
-  const accessPayload = {UID: current.UID}
+  const accessPayload = {UID: user._id , isAdmin : user.isAdmin , roles : user.roles , name : user.firstName + " " + user.lastName}
   let refreshPayload
-
-  const expiration = new Date(current.exp * 1000)
+  refreshExp
+  const expiration = new Date(refreshExp * 1000)
   const now = new Date()
   const secondsUntilExpiration = (expiration.getTime() - now.getTime()) / 1000
 
   // stop
   if (secondsUntilExpiration < TokenExpiration.RefreshIfLessThan) {
-    refreshPayload = {UID: current.UID}
+    refreshPayload = {UID: user._id}
   }
 
   const accessToken = signAccessToken(accessPayload)
