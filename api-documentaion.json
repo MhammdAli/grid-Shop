@@ -1,0 +1,505 @@
+{
+    "swagger" : "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Grid Shop",
+        "description": "Grid Shop is the helpful app for buying products online",
+        "contact": {
+            "email": "mohammad@gmail.com",
+            "name": "Mohammad Harb"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://mit-license.org/"
+        }
+    },
+    "host": "www.gridApp.com",
+    "schemes": ["https"],
+    "basePath": "/",
+    "tags": [
+        {"name": "users","description": "Users apis are used to generate CRUD operations on a specific user"},
+        {"name": "products","description": "Products api are used to generate CRUD operations on product"},
+        {"name": "orders","description": "Orders apis are used to generate CRUD operations on orders"},
+        {"name": "categories","description": "generate CRUD operations on categories . These types of apis need high level previleges in order to access them"},
+        {"name": "brands","description": "generate CRUD operations on brands.These types of apis need high level previleges in order to access them"},
+        {"name": "branches","description": "generate CRUD operations on branches.These types of apis need high level previleges in order to access them"},
+        {"name": "send","description": "the pupose of this api is to send email.need high level priveleges"},
+        {"name": "paypal","description": "these apis is used to transfer money from the buyer"}
+    ],
+    "paths": {
+        "/users" : {
+            "get": {
+                "tags": ["users"],
+                "summary": "get all users using pagination pattern",
+                "description": "this type of api must has heigh level privilege like admin or READ_ALL_USER privilige",
+                "consumes" : ["application/Json"],
+                "operationId": "getAllUsers",
+                "produces" : ["application/Json"],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "type": "number",
+                        "minimum": 1,
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "pageSize",
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "in": "query",
+                        "default" : 20
+                    },
+                    {
+                        "name": "firstName",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "lastName",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "createdAt",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "updatedAt",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/pattern"
+                    }
+                ],
+                "responses": {
+                    "200" : {
+                        "description": "OK",
+                        "schema" : {
+                            "type" : "array",
+                             "items": {
+                                 "type" : "object",
+                                 "$ref": "#/definitions/userInfo"
+                             }
+                        }
+                    },
+                    "403" : {
+                        "$ref": "#/responses/403"
+                    },
+                    "401" : {
+                        "$ref": "#/responses/401"
+                    }
+                }
+            }
+        },
+        "/users/{id}" :{
+            "get": {
+                "tags": ["users"],
+                "summary": "get user by id , or by using special character me",
+                "description": "to access this api you need access token. this api need high privileges if you need to read all users info",
+                "consumes" : ["application/Json"],
+                "produces" : ["application/Json"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "read user by id or by using special character me",
+                        "type": "string",
+                        "required": true
+                    },
+                    { "$ref": "#/parameters/access_token" },
+                    { "$ref": "#/parameters/refresh_token" }
+                ],
+                "responses": {
+                    "200" : {
+                        "description": "OK",
+                        "schema" : {
+                            "type" : "object", 
+                            "$ref": "#/definitions/userInfo"
+                        }
+                    },
+                    "401" : { "$ref": "#/responses/401" },
+                    "403" : { "$ref": "#/responses/403" }
+                }
+            },
+            "delete": {
+                "tags": ["users"],
+                "summary": "delete user",
+                "consumes" : ["application/Json"],
+                "produces" : ["applciation/Json"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "delete user by id or by using special character me",
+                        "type": "string",
+                        "required": true
+                    },
+                    { "$ref": "#/parameters/access_token" },
+                    { "$ref": "#/parameters/refresh_token" }
+                ],
+                "responses": {
+                    "200" : {
+                        "$ref": ""
+                    },
+                    "401" : { "$ref": "#/responses/401" },
+                    "403" : { "$ref": "#/responses/403" }
+                }
+            },
+            "patch": {
+                "tags": ["users"],
+                "summary": "update user",
+                "consumes" : ["application/Json"],
+                "produces" : ["applciation/Json"],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "schema": {
+                            "properties": {
+                                "firstName" : {
+                                    "type" : "string"
+                                },
+                                "lastName" : {
+                                    "type" : "string"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "in": "formData",
+                        "type": "file",
+                        "name": "avatar",
+                        "description": "upload profile image only accept png,jpg,jpeg extensions",
+                        "required": false
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "update user by id or by using special character me",
+                        "type": "string",
+                        "required": true
+                    },
+                    { "$ref": "#/parameters/access_token" },
+                    { "$ref": "#/parameters/refresh_token" }
+                ],
+                "responses": {
+                    "401" : { "$ref": "#/responses/401"
+                    },
+                    "403" : { "$ref": "#/responses/403" }
+                }
+            }
+        },
+        "/products" : {
+            "get": {
+                "tags": ["products"], 
+                "summary": "get products",
+                "description": "",
+                "consumes" : ["application/Json"],
+                "produces" : ["application/Json"], 
+                "parameters": [
+                    {
+                        "name": "page",
+                        "type": "number",
+                        "minimum": 1,
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "pageSize",
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "in": "query",
+                        "default" : 20,
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200" : {
+                        "description": "OK",
+                        "schema" : {
+                            "type" : "array",
+                            "items": {
+                                "$ref": "#/definitions/productInfo"
+                            }
+                        }
+                    },
+                    "401" : { "$ref": "#/responses/401" },
+                    "403" : { "$ref": "#/responses/403" }
+                } 
+            }
+        } ,
+        "/products/{slugName}" : {
+            "get": {
+                "tags": ["products"],
+                "summary": "get One Product by slugName", 
+                "consumes" : ["application/Json"],
+                "produces" : ["application/Json"],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "in": "query",
+                        "name": "slugName",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200" : {
+                        "description": "OK",
+                        "schema" : {
+                            "type" : "object",
+                            "$ref": "#/definitions/productInfo"
+                        }
+                    },
+                    "401" : { "$ref": "#/responses/401" },
+                    "403" : { "$ref": "#/responses/403" }
+                } 
+            }
+        },
+        "/topProducts" : {
+            "get": {
+                "tags": ["products"], 
+                "summary": "get All Top Products products",
+                "description": "",
+                "consumes" : ["application/Json"],
+                "produces" : ["application/Json"], 
+                "parameters": [
+                    {
+                        "name": "page",
+                        "type": "number",
+                        "minimum": 1,
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "pageSize",
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "in": "query",
+                        "default" : 20,
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200" : {
+                        "description": "OK",
+                        "schema" : {
+                            "type" : "array",
+                            "items": {
+                                "$ref": "#/definitions/productInfo"
+                            }
+                        }
+                    },
+                    "401" : { "$ref": "#/responses/401" },
+                    "403" : { "$ref": "#/responses/403" }
+                } 
+            }
+        }
+    },
+    "parameters": {
+        "access_token" : { 
+            "name": "ACCESS_TOKEN",
+            "in": "header",
+            "description": "inject your token in cookie",
+            "type": "string",
+            "required": true 
+        },
+        "refresh_token" : {
+            "name": "REFRESH_TOKEN",
+            "in": "header",
+            "description": "optional but it is used to refresh access token if it is expired",
+            "type": "string",
+            "required": false
+        },
+        "pattern" : {
+            "name": "pattern",
+            "in": "query",
+            "type": "string",
+            "description": "",
+            "pattern": "firstName:startWith",
+            "enum": [
+                "firstName:startWith",
+                "firstName:endWith",
+                "firstName:equal",
+                "firstName:contains",
+                "createdAt:year",
+                "createdAt:month",
+                "createdAt:dayOfWeek",
+                "fieldName:gt",
+                "fieldName:lt",
+                "fieldName:gte",
+                "fieldName:lte",
+                "fieldName:eq"
+            ]
+        }
+    },
+    "responses": {
+        "401" : {
+            "description": "Unauthorized",
+            "schema" : {
+                "type" : "object",
+                "properties": {
+                    "name" : {
+                        "type" : "string",
+                        "example" : "JsonWebTokenError"
+                    }
+                }
+            }
+        },
+        "403" : {
+            "description": "Forbidden",
+            "schema" : {
+                "type" : "object",
+                "properties": {
+                    "error" : {
+                        "properties": {
+                            "id" : {
+                                "properties": {
+                                    "message" : {
+                                        "type" : "string",
+                                        "description": "no permission to call this api"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "type" : {
+                        "title": "erorr",
+                        "default" : "ERROR"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "userInfo" : {
+            "type" : "object",
+            "title": "User Info",
+            "description": "return object for the specified user",
+            "properties": {
+                "_id" : {
+                    "type" : "string",
+                    "title": "user id"
+                },
+                "firstName" : {
+                    "type" : "string",
+                    "title": "user first Name"
+                },
+                "lastName" : {
+                    "type" : "string",
+                    "title": "user last Name"
+                },
+                "email" : {
+                    "type" : "string",
+                    "title": "email"
+                },
+                "createdAt" : {
+                    "type" : "string",
+                    "title": "creation account date",
+                    "description": "the creation date of this account"
+                },
+                "updatedAt" : {
+                    "type" : "string",
+                    "title": "last update account",
+                    "description": "the last update for this account"
+                },
+                "imageUrl" : {
+                    "type" : "string",
+                    "title": "user image profile",
+                    "example" : "/images/1651329911081.jpg"
+                },
+                "roles" : {
+                    "type" : "array",
+                    "title": "user priveleges"
+                },
+                "isAdmin" : {
+                    "type" : "boolean",
+                    "title": "boolean if user is admin or regular user"
+                }
+            }
+        },
+        "productInfo" : {
+            "type" : "object",
+            "properties": {
+                "_id" : {
+                    "type" : "string"
+                },
+                "name" : {
+                    "type" : "string"
+                },
+                "slugName" : {
+                    "type" : "string"
+                },
+                "categories" : {
+                    "type" : "object",
+                    "properties": {
+                        "main" : {
+                            "type" : "string"
+                        },
+                        "sub" : {
+                            "type" : "string"
+                        }
+                    }
+                },
+                "image" : {
+                    "type" : "string"
+                },
+                "price" : {
+                    "type" : "number"
+                },
+                "discount" : {
+                    "type" : "number"
+                },
+                "rating" : {
+                    "type" : "number"
+                },
+                "numReviews" : {
+                    "type" : "number"
+                },
+                "description" : {
+                    "type" : "string"
+                },
+                "createdAt" : {
+                    "type" : "string"
+                },
+                "updatedAt" : {
+                    "type" : "string"
+                },
+                "brand" : {
+                    "type" : "string"
+                },
+                "stocks" : {
+                    "type" : "array",
+                    "items": {
+                        "type" : "object",
+                        "properties": {
+                            "stockName" : {
+                                "type" : "string"
+                            },
+                            "countInStock" : {
+                                "type" : "string"
+                            }
+                        }
+                    }
+                },
+                "ItemDetails" : {
+                    "type" : "array",
+                    "items": {
+                        "type" : "string"
+                    }
+                }
+            }
+        }
+
+    }
+}
