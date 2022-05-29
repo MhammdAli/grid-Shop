@@ -75,9 +75,8 @@ const Datagrid = ({ ActionLeft , ActionRight,rows , columns , rowsPerPageOptions
            })
 
         )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }),[dataSet.rows])
- 
-    
   
     const handleSearch = async()=>{ 
      
@@ -185,9 +184,7 @@ const Datagrid = ({ ActionLeft , ActionRight,rows , columns , rowsPerPageOptions
     }
 
 
-    function refreshAll(){
-        
-    }
+    
     return (
         <>
             
@@ -274,7 +271,6 @@ const Datagrid = ({ ActionLeft , ActionRight,rows , columns , rowsPerPageOptions
 
                             <TableCell>
                                 <Button variant="contained" onClick={handleSearch} sx={{mx:1}}>Search</Button>
-                                <Button variant="contained" onClick={refreshAll} sx={{mx:1}}>Refresh All</Button>
                             </TableCell>
 
                         </TableRow>
