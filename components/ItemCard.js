@@ -1,8 +1,7 @@
 import { Star } from '@mui/icons-material';
 import { Button, Card, CardActions, CardContent, CardHeader, CardMedia, Collapse, Divider, IconButton, List, ListItem, Rating, Typography } from '@mui/material';
 import React from 'react'; 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; 
 import styled from '@emotion/styled';
 import CustomLink from "../utilities/customRouting"
 const Itemcard = ({itemDetails,image ,slugName, name,updatedAt , mainCategory , price , rating , description }) => {
@@ -25,26 +24,21 @@ const Itemcard = ({itemDetails,image ,slugName, name,updatedAt , mainCategory , 
         setExpanded(!expanded);
     };
 
-
+ 
     function changeDateFormat(date){  
          return new Date(date).toString()
     }
 
     return (
         <Card>
-      <CardHeader
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
+      <CardHeader 
         title={name}
         subheader={changeDateFormat(updatedAt)}
       />
       <CardMedia
         component="img"
         height="300"
-        image={image}
+        image={`imgs/products/${image}`}
         alt="Paella dish"
       />
       <CardContent>
@@ -82,7 +76,7 @@ const Itemcard = ({itemDetails,image ,slugName, name,updatedAt , mainCategory , 
             </Button>
             </CustomLink>
         <ExpandMore
-          expand={expanded}
+          expand={expanded.toString()}
           onClick={handleExpandClick}
           aria-expanded={expanded}
           aria-label="show more"

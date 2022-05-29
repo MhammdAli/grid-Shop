@@ -54,7 +54,7 @@ export default function EmailDialog({open , row , handleClose}) {
       .setTo(row.email)
       .setFrom("ME")
       .send()
-      .then(((res)=>{ 
+      .then((()=>{ 
           setSnackMessage({
               message : "Email Sent successfuly",
               isError : false
