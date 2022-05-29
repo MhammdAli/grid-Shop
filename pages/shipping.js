@@ -20,7 +20,7 @@ const Shipping = () => {
         if(status === "UNUTHENTICATED"){
             router.replace("/signin?redirect=shipping")
         }
-    },[])
+    },[router,status])
 
     const [shipping , setShipping] = useState();  
 

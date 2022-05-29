@@ -1,9 +1,8 @@
-import { Button, Container, Grid, Stack,Table,Alert, TableBody, TableCell, TableContainer, TableHead, TableRow , Link, Select, MenuItem, ListItem , List ,Paper , Typography , TablePagination, TextField, CircularProgress } from '@mui/material';
+import { Button, Container, Grid, Stack,Table,Alert, TableBody, TableCell, TableContainer, TableHead, TableRow , Link, ListItem , List ,Paper , Typography , TablePagination, TextField, CircularProgress } from '@mui/material';
 import React,{useRef, useState} from 'react';
 import Sectionsplitter from '../components/sectionSplitter';
 import {useStore} from "../store/store";
-import Image from "next/image"; 
-import {Close } from '@mui/icons-material'; 
+import Image from "next/image";  
 import NextLink from "next/link"; 
 import { useRouter } from 'next/router'; 
 import Checkoutwizard from "../components/CheckOutWizard";
@@ -41,7 +40,7 @@ const PlaceOrder = () => {
         try{
                 const {data} = await axios.post("/api/orders/",{
                     products,
-                    paymentMethod : state.paymentMethod,
+                    paymentMethod : state.paymentMethod || "payPal",
                     shippingAddress : state.shippingAddress,
                     comment : commentRef.current.value
                 },{withCredentials : true})
@@ -66,6 +65,7 @@ const PlaceOrder = () => {
         const round = (num)=>Math.round(num * 100 + Number.EPSILON) / 100
 
         const itemsPrice = round(state.cart?.reduce((acc,item)=>acc + item?.quantity * item?.product?.price,0))
+         
         const shippingPrice = calculateShippingPrice(itemsPrice);
 
         const taxPrice = calculateTax(itemsPrice)
@@ -97,6 +97,7 @@ const PlaceOrder = () => {
                 </ListItem>
             </>
         )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[state.cart])
 
     return (
@@ -137,7 +138,7 @@ const PlaceOrder = () => {
                                  <Sectionsplitter title="Payment Method" width={100} variant="h2" sx={{my : 2}}/> 
                             </ListItem>
                             <ListItem>
-                                <Typography><b>Your Payment is : </b> {state.paymentMethod}</Typography> 
+                                <Typography><b>Your Payment is : </b> {state.paymentMethod || "payPal"}</Typography> 
                             </ListItem>
 
                         </List>
@@ -155,8 +156,7 @@ const PlaceOrder = () => {
                                                 <TableCell >Image</TableCell>
                                                 <TableCell >Name</TableCell>
                                                 <TableCell align='right'>Quantity</TableCell>
-                                                <TableCell align='right'>Price</TableCell>
-                                                <TableCell align='right'>Action</TableCell>
+                                                <TableCell align='right'>Price</TableCell> 
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -166,20 +166,15 @@ const PlaceOrder = () => {
                                                         <TableCell>
                                                             <NextLink href={`/product/${cart?.product?.slugName}`} passHref>
                                                                 <Link>
-                                                                <Image width={50} height={50} src={cart?.product?.image} alt={cart?.product?.name}/>
+                                                                <Image width={50} height={50} src={`/imgs/products/${cart?.product?.image}`} alt={cart?.product?.name}/>
                                                                 </Link>
                                                             </NextLink>
                                                         </TableCell>
                                                         <TableCell>{cart?.product?.name}</TableCell>
                                                         <TableCell align='right'>
-                                                            <Select value={cart?.quantity} size="small">
-                                                                {[...Array(cart?.product?.stocks.reduce((agg,{countInStock})=>agg+countInStock,0)).keys()].map(x=>(<MenuItem key={x+1} value={x+1} >
-                                                                    {x+1}
-                                                                </MenuItem>))}
-                                                            </Select>
+                                                            {cart?.quantity}
                                                         </TableCell>
                                                         <TableCell align='right'>{cart?.product?.price}</TableCell>
-                                                        <TableCell align='right'><Button variant="contained" color="error" size="small" ><Close/></Button></TableCell>
                                                     </TableRow>
                                                 )
                                             }) 

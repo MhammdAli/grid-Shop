@@ -157,12 +157,12 @@ const Order = ({id}) => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {order?.items.slice(page * rowsPerPage,(page + 1) * rowsPerPage).map((product,index)=>{
+                                            {order?.items.slice(page * rowsPerPage,(page + 1) * rowsPerPage).map((product)=>{
                                                 
                                                 return (
-                                                    <TableRow hover  key={index} >
+                                                    <TableRow hover  key={product?._id} >
                                                         <TableCell>
-                                                            <Image width={50} height={50} src={product._id?.image} alt={product._id?.name}/>
+                                                            <Image width={50} height={50} src={`/imgs/products/${product._id?.image}`} alt={product._id?.name}/>
                                                         </TableCell>
                                                         <TableCell>{product._id?.name}</TableCell>
                                                         <TableCell align='right'>{product?.quantity}</TableCell> 

@@ -60,7 +60,7 @@ const Cart = () => {
                                             <TableCell>
                                                 <NextLink href={`/product/${cart?.product?.slugName}`} passHref>
                                                     <Link>
-                                                       <Image width={50} height={50} src={cart?.product?.image} alt={cart?.product?.name}/>
+                                                       <Image width={50} height={50} src={`/imgs/products/${cart?.product?.image}`} alt={cart?.product?.name}/>
                                                     </Link>
                                                 </NextLink>
                                             </TableCell>

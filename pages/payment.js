@@ -29,7 +29,7 @@ const Payment = () => {
         if(status === "UNUTHENTICATED"){
             router.replace("/signin?redirect=payment")
         }
-    },[])
+    },[router])
 
 
     return (

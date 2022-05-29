@@ -92,12 +92,6 @@ const Orderhistory = ({rowsProps}) => {
                                 value,
                                 operator
                             } = payload
-
-
-                            console.log({field,
-                                value,
-                                operator})
-
                         
                             const queryString = (`${field}=${value}` + ( operator ? `&pattern=${field}:${operator}` : ''))
                             

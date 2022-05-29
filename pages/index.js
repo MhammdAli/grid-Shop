@@ -8,6 +8,7 @@ import Sectionsplitter from '../components/sectionSplitter';
 import { connect } from '../config/dbConn'; 
 import Layout from '../components/Layout';
 import NextLink from "next/link";
+import Image from "next/image";
 export default function Home({topProductsProps}) {
  
    const [ topProducts ] = useState(JSON.parse(topProductsProps))
@@ -15,9 +16,9 @@ export default function Home({topProductsProps}) {
   return (
        <Layout>
          <Container>
-            <Grid container sx={{alignItems : "center" , minHeight : 300 , mb : 6, mt : 2}} spacing={2}>
+            <Grid container sx={{alignItems : "center" , minHeight : 300 , mb : 6, my : 2}} spacing={2}>
                
-               <Grid item sm={6}>
+               <Grid item sm={6} sx={{my:2}}>
                   <Typography variant="h4">Amazing Products For Sale</Typography>
                   
                   <Sectionsplitter variant="h5" title="Enjoy Your Time 😍"/>
@@ -33,8 +34,14 @@ export default function Home({topProductsProps}) {
                   </NextLink>
 
                </Grid>
-               <Grid item sm={6}>
-                  <img src="/header.png" style={{width : "100%"}}  alt="buy products image"/>
+               <Grid item sm={6}> 
+                  <Image
+                     src="/header.png"
+                     alt="Picture of the author"
+                     width={700}
+                     height={500}
+                     priority
+                   />
                </Grid>
                
             </Grid>

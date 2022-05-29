@@ -1,8 +1,6 @@
 import React from 'react';
-import { Button, Checkbox , FormControlLabel, TextField, Typography , Alert} from '@mui/material';
+import { Button, TextField, Typography , Alert} from '@mui/material';
 import { Box } from '@mui/system';
-import CustomLink from "../utilities/customRouting"
-import { FlexBox } from '../components/FlexBox';  
 import { getSession } from '../auth/session';
 import {useRouter} from "next/router";
 import { signIn } from '../auth/AuthContext';
@@ -52,12 +50,7 @@ const Signin = () => {
                         type="password"
                         required variant="outlined" label="password" margin="normal" fullWidth size="small" name="password"
                         /> 
-                        <FlexBox> 
-                            <FormControlLabel control={<Checkbox />} label="Remember Me" name="rememberMe"/>
-                            <CustomLink route="/forget" disableDecoration>
-                                Forget?
-                            </CustomLink>
-                        </FlexBox>
+                        
                         <Button fullWidth variant="contained" sx={{my : 2,borderRadius : 0}} type="submit">LOGIN</Button>
                 </form> 
             </Box>  
