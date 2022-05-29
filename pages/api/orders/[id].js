@@ -24,10 +24,10 @@ handler.get(async (req,res)=>{
   await connect()  
   try{
     const order = await getOrderById(id,{populateItems : true})
-     
-    if(order.user && (order.user.toString() === req.user.UID || req.user.isAdmin) ) res.json({order})
-
-    else res.status(405).json({name : "NOPERMISSION",message : "you dont have permission to call this api"})
+  
+    if(order.user && (order?.user?._id.toString() === req.user.UID || req.user.isAdmin) ) res.json({order})
+    
+    else res.status(403).json({name : "NOPERMISSION",message : "you dont have permission to call this api"})
 
   }catch(err){  
      res.json(err)

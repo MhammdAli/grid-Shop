@@ -6,6 +6,7 @@ import { validate } from "../../../utilities/Validation";
 import nc from "next-connect";
 import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
 import { handleDateOperator , handleTextOperator} from "../../../utilities/mongoOperators";
+import { hasPermission, PERMISSIONS } from "../../../middlewares/hasPermission";
 
 const handler = nc({
     onNoMatch : NoMatchEndpoint,
@@ -31,12 +32,6 @@ handler.use(validate({
         match : {
             validator : (pageSize)=>pageSize >0 && pageSize <=100,
             message : "page Size must be between 1 and 100"
-        }
-    },
-    id : {
-        match : {
-            validator : function(){return this.isAdmin},
-            message : "no permission"
         }
     },
     firstName : {
@@ -71,7 +66,7 @@ handler.use(validate({
     },
 }))
 
-handler.get(async (req,res)=>{
+handler.get(hasPermission(PERMISSIONS.READ_USER),async (req,res)=>{
     
   if(req.result.type === "ERROR") return res.json(req.result)
  

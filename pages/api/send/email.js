@@ -3,6 +3,7 @@ import  {isAuth} from "../../../utilities/tokens_utilities";
 import nc from "next-connect";
 import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
 import { SendEmail } from "../../../utilities/nodeMailer";
+import { hasPermission, PERMISSIONS } from "../../../middlewares/hasPermission";
 
 const handler = nc({
     onNoMatch : NoMatchEndpoint,
@@ -11,13 +12,7 @@ const handler = nc({
 
 handler.use(isAuth())
 
-handler.use(validate({
-    permission : {
-        match : {
-            validator : function(){return this.isAdmin},
-            message : "no permission To Send Email"
-        }
-    },
+handler.use(validate({ 
     to : {
         match : {
             validator : (value)=>{
@@ -28,7 +23,7 @@ handler.use(validate({
     } 
 }))
 
-handler.post(async (req,res)=>{
+handler.post(hasPermission(PERMISSIONS.SEND_EMAIL_USER),async (req,res)=>{
    
 
    

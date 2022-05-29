@@ -2,9 +2,9 @@
 import nc from "next-connect"
 import { connect  } from "../../../config/dbConn"
 import {addBrand, getAllBrands} from "../../../models/brand/brand" 
-import {validate} from "../../../utilities/Validation"
 import  {isAuth} from "../../../utilities/tokens_utilities";
 import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+import { hasPermission, PERMISSIONS } from "../../../middlewares/hasPermission";
 
 const handler = nc({
     onNoMatch : NoMatchEndpoint,
@@ -13,21 +13,11 @@ const handler = nc({
 
 
 handler.use(isAuth())
-
-handler.use(validate({
-    permission : {
-        match : {
-            validator : function(){return this.isAdmin},
-            message : "no permission"
-        }
-    }
-}))
-
-handler.get(async (req,res)=>{
-    if(req.result.type === "ERROR") return res.json(req.result)
-   
-    await connect(); 
+ 
+handler.get(hasPermission(PERMISSIONS.READ_BRAND),async (req,res)=>{
+ 
     
+    await connect();  
       try{
          
           const barnds = await getAllBrands();
@@ -40,10 +30,8 @@ handler.get(async (req,res)=>{
 })
 
 
-handler.post(async(req,res)=>{
-
-    if(req.result.type === "ERROR") return res.json(req.result)
-
+handler.post(hasPermission(PERMISSIONS.WRITE_BRAND),async(req,res)=>{
+ 
     const {
        name
     } = req.body

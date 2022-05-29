@@ -1,9 +1,9 @@
 import { connect  } from "../../../config/dbConn"
 import {addCategory, getAllCategories} from "../../../models/category/category" 
-import {validate} from "../../../utilities/Validation"
 import  {isAuth} from "../../../utilities/tokens_utilities";
 import nc from "next-connect";
 import {NoMatchEndpoint,errorHandler} from "../../../middlewares/errorMiddlewares"
+import { hasPermission, PERMISSIONS } from "../../../middlewares/hasPermission";
 
 const handler = nc({
     onNoMatch : NoMatchEndpoint,
@@ -12,19 +12,10 @@ const handler = nc({
 
 handler.use(isAuth())
 
-handler.use(validate({
-    permission : {
-        match : {
-            validator : function(){return this.isAdmin},
-            message : "no permission"
-        }
-    }
-}))
-
-handler.get(async (req,res)=>{
+ 
+handler.get(hasPermission(PERMISSIONS.READ_CATEGORY),async (req,res)=>{
    
-    if(req.result.type === "ERROR") return res.json(req.result)
-    
+ 
     try{
         await connect();
         const categories = await getAllCategories();
@@ -38,9 +29,7 @@ handler.get(async (req,res)=>{
 
 
 
-handler.post(async(req,res)=>{
-
-    if(req.result.type === "ERROR") return res.json(req.result)
+handler.post(hasPermission(PERMISSIONS.WRITE_CATEGORY),async(req,res)=>{
 
     const {
        mainCategory,
