@@ -65,10 +65,8 @@ const Profile = () => {
     },[state.userInfo?.firstName , state.userInfo?.lastName])
 
     React.useEffect(()=>{
-
         if(status === "UNUTHENTICATED") return router.replace("/signin") 
-        
-    },[])
+    },[router , status])
 
      
     return (

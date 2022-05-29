@@ -25,7 +25,7 @@ function Products() {
       return []
     }
   };
-[]
+  
   const fetchData = async () => {
     try{
       const ProductsFormServer = await fetchProducts();
@@ -44,6 +44,7 @@ function Products() {
  
   useEffect(() => {
     fetchData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); 
   
   return (
@@ -65,12 +66,12 @@ function Products() {
                     style={{"overflow" : "hidden"}}
                     scrollThreshold="1px" // when arrive last 1px from the last component render next props
                  >
-                    {items.map((item,index) => {
+                    {items.map((item) => {
                         
                         return (
-                            <Grid item key={index + 1} sx={{mt : 2}}>
+                            <Grid item key={item?._id} sx={{mt : 2}}>
                                
-                                    <Itemcard  
+                                    <Itemcard   
                                         name={item.name} 
                                         mainCategory={item.category.main}
                                         price={item.price} 

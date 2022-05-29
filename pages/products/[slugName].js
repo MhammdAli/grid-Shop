@@ -1,4 +1,4 @@
-import React,{useState } from 'react'; 
+import React,{useState,Fragment } from 'react'; 
 import { Container ,Grid, List, ListItem, Typography,Card,Button,Slider,Snackbar, IconButton} from '@mui/material'; 
 import Image from "next/image";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'; 
@@ -94,13 +94,13 @@ const Productid = ({productProps}) => {
                         
                 <Grid container spacing={1} sx={{my : 1.5}}>
                     <Grid item md={6} xs={12}>
-                        <Image priority={true} src={'/header.png'} alt="priducts" width={440} height={340} layout="responsive"></Image>
+                        <Image priority={true} src={`/imgs/products/${product?.image}`} alt="priducts" width={440} height={340} layout="responsive"></Image>
                     </Grid>
                     <Grid item md={6} xs={12}>
                         <Grid container>
                             <Grid item md={6} xs={12}>
                                 <List>
-                                    <ListItem>
+                                     <ListItem>
                                         <Typography variant="h1">
                                             {product.name}
                                         </Typography>
@@ -189,13 +189,13 @@ const Productid = ({productProps}) => {
                             <ListItem>
                                 <Typography variant="h2">Order Details:</Typography>
                             </ListItem>
-                        {product?.ItemDetails.map((eachDetail , index)=>{
+                        {product?.ItemDetails.map((eachDetail,index)=>{
                                 return (
-                                    <>
-                                    <ListItem key={index}>
-                                    {eachDetail}
-                                    </ListItem>  
-                                    </>
+                                    <Fragment key={product?._id + index}>
+                                        <ListItem>
+                                        {eachDetail}
+                                        </ListItem>  
+                                    </Fragment>
                                 )
                             }) 
                         } 
