@@ -1,9 +1,11 @@
 import mongoose from "mongoose"
-
-export async function connect() { 
-  
+const connection = {}
+export async function connect() {  
+    
     try{
-        return await mongoose.connect(process.env.MONGODB_URL,{user : process.env.MONGODB_USER , pass : process.env.MONGODB_PASS})
+        const db = await mongoose.connect(process.env.MONGODB_URL,{user : process.env.MONGODB_USER , pass : process.env.MONGODB_PASS})
+     
+        connection.isConnected  = db.connections[0].readyState;
     }catch(err){
         if(process.env.NODE_ENV === "development") console.log(err.name)
         //process.exit(1)
