@@ -1,20 +1,21 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { connect } from '../../config/dbConn';
 import { getSession } from '../../auth/session';
 import {decode} from "jsonwebtoken"
-import {  Alert, Button, Collapse, Container,IconButton,List, ListItem, TextField, Typography } from '@mui/material'; 
+import {  Alert, Button, Collapse, Container,IconButton,List, ListItem, TextField, Typography , CircularProgress } from '@mui/material'; 
 import AdminLayout from '../../components/adminLayout';
 import Sectionsplitter from '../../components/sectionSplitter';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box } from '@mui/system';
+import { CheckPermission, PERMISSIONS } from '../../middlewares/hasPermission';
 
 const Index = () => {
 
 
-    const [error , setError] = React.useState({})
-  
-    const [open, setOpen] = React.useState(false);
+    const [error , setError] = useState({})
+    const [loading , setLoading] = useState()
+    const [open, setOpen] = useState(false);
 
     function addBranch(event){
         event.preventDefault();
@@ -24,18 +25,20 @@ const Index = () => {
             address : {value : address}
         } = event.target
 
-      
-            axios.post("/api/branches",{
-                name,
-                address
-            }).then(()=>{ 
-                setError({})
-                setOpen(true)
-            })
-            .catch(({response : {data : err}})=>{
-                setOpen(false)
-                setError(err.errors)
-            })
+        setLoading(true);
+        axios.post("/api/branches",{
+            name,
+            address
+        }).then(()=>{ 
+            setError({})
+            setOpen(true)
+            setLoading(false)
+        })
+        .catch(({response : {data : err}})=>{
+            setOpen(false)
+            setError(err.errors)
+            setLoading(false)
+        })
 
          
 
@@ -83,7 +86,7 @@ const Index = () => {
                             <TextField name="address" fullWidth variant='outlined' size='small' placeholder='Branch Address'/>
                         </ListItem>
                         <ListItem>
-                            <Button variant="contained" type="submit">Add Branch</Button>
+                            <Button startIcon={loading & <CircularProgress size={20}/>} disbaled={loading}  variant="contained" type="submit">Add Branch</Button>
                         </ListItem>
                     </List>
                 
@@ -99,8 +102,8 @@ export async function getServerSideProps(context) {
     const session = await getSession(context) 
     
     const decodedToken = decode(session.token)
-    
-    if(decodedToken.isAdmin == false) {
+  
+    if(!(decodedToken.isAdmin || CheckPermission(decodedToken?.roles,PERMISSIONS.WRITE_BRANCH))) {
         return {
             notFound: true,
         }

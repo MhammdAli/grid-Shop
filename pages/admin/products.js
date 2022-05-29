@@ -1,5 +1,6 @@
 import { Button } from '@mui/material';
 import axios from 'axios';
+import { decode } from 'jsonwebtoken';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { getSession } from '../../auth/session';
@@ -7,6 +8,7 @@ import AdminLayout from '../../components/adminLayout';
 import DataGrid from '../../components/DataGrid';
 import Sectionsplitter from '../../components/sectionSplitter';
 import { connect } from '../../config/dbConn';
+import { CheckPermission, PERMISSIONS } from '../../middlewares/hasPermission';
 import { getAllProducts } from '../../models/products/products';
 const Products = ({rowsProps}) => {
 
@@ -101,13 +103,12 @@ const Products = ({rowsProps}) => {
 
                     ActionLeft={
                         <Button variant="contained" sx={{mx:2}} size='small' onClick={(row)=>{
-                         
                             router.push(`/products/${row.slugName}`)
                         }}>View</Button>
                     }
                     ActionRight={
                         <Button variant="contained" color="success" sx={{mx:2}} size='small' onClick={(row)=>{
-                            router.push(`/admin/users/edit/${row._id}`)
+                            router.push(`/admin/products/edit/${row._id}`)
                         }}>Edit</Button>
                     }
                     
@@ -121,6 +122,14 @@ export async function getServerSideProps(context) {
     await connect()
     const session = await getSession(context) 
     
+    const decodedToken = decode(session.token)
+  
+    if(!(decodedToken.isAdmin || CheckPermission(decodedToken?.roles,PERMISSIONS.READ_PRODUCTS))) {
+        return {
+            notFound: true,
+        }
+    } 
+
     if(session.type === "ERROR"){
         return {
             redirect : {

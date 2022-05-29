@@ -5,14 +5,23 @@ import DataGrid from '../../../components/DataGrid';
 import Sectionsplitter from '../../../components/sectionSplitter';
 import axios from "axios";
 import { connect } from '../../../config/dbConn';
-import { getSession } from '../../../auth/session';
+import { getSession} from '../../../auth/session';
 import { getUsers } from '../../../models/users/users';
 import { useRouter } from 'next/router';
 import EmailDialog from '../../../components/EmailDialog';
+import { decode } from 'jsonwebtoken';
+import {CheckPermission,PERMISSIONS} from "../../../middlewares/hasPermission";
+import {useAuth} from "../../../auth/AuthContext";
+import Notifier,{NOTIFICATION_TYPE} from "../../../components/Notification";
 const Users = ({rowsProps}) => {
 
     const router = useRouter();
+    const [alert,setAlert] = React.useState({message : null , type : null});
+    function closeAlert(){
+        setAlert({message : null , type : null})
+    }
 
+    const {session} = useAuth();
     const columns = {
         ID : {
             type : "number",
@@ -54,10 +63,14 @@ const Users = ({rowsProps}) => {
 
 
    const fetchUsers = async (page,pageSize,queryString) => {  
-             
-        const {data} = await axios.get(`/api/users?page=${page}&pageSize=${pageSize}` + ((queryString) ? "&"+queryString : ""));
-    
-        return data;
+          
+        try{
+          const {data} = await axios.get(`/api/users?page=${page}&pageSize=${pageSize}` + ((queryString) ? "&"+queryString : ""));
+          return data;
+        }catch(err){
+           setAlert({message : err.message,type : NOTIFICATION_TYPE.ERROR})
+        }
+        
   };
 
   const [OpenEmailDialog , setOpenEmailDialog] = React.useState({
@@ -65,8 +78,11 @@ const Users = ({rowsProps}) => {
       id : null
   });
  
+
+  
     return (
         <AdminLayout Title="Users">
+            <Notifier open={Boolean(alert?.message)} message={alert?.message} type={alert.type} onClose={closeAlert} duration={2000}/>
            <Sectionsplitter title="Users" sx={{mb : 3}}/>
                 <DataGrid
                     rows={JSON.parse(rowsProps)}
@@ -98,8 +114,8 @@ const Users = ({rowsProps}) => {
                     }} 
 
                     ActionLeft={
-                        <Button variant="contained" sx={{mx:2}} size='small' onClick={(row)=>{
-                           // router.push(`/admin/users/view/${row._id}`)
+                        <Button variant="contained" sx={{mx:2}} size='small' onClick={(row)=>{ 
+                           if(!(CheckPermission(session?.roles,PERMISSIONS.SEND_EMAIL_USER) || session?.isAdmin)) return setAlert({type :  NOTIFICATION_TYPE.ERROR , message : "no permession to send email"})
                            setOpenEmailDialog({
                                open : true,
                                id : row
@@ -108,7 +124,11 @@ const Users = ({rowsProps}) => {
                     }
                     ActionRight={
                         <Button variant="contained" color="success" sx={{mx:2}} size='small' onClick={(row)=>{
-                            router.push(`/admin/users/edit/${row._id}`)
+                            if(CheckPermission(session?.roles,[PERMISSIONS.GRANT_ROLES,PERMISSIONS.REVOKE_ROLES]) || session?.isAdmin){
+                                return router.push(`/admin/users/edit/${row._id}`)
+                            }
+
+                            setAlert({"message" : "No Permission to Access This page" , "type" : NOTIFICATION_TYPE.ERROR})
                         }}>Edit</Button>
                     }
                     
@@ -132,6 +152,15 @@ export async function getServerSideProps(context) {
     await connect()
     const session = await getSession(context) 
     
+    const decodedToken = decode(session.token)
+  
+    if(!(decodedToken.isAdmin || CheckPermission(decodedToken?.roles,PERMISSIONS.READ_USER))) {
+        return {
+            notFound: true,
+        }
+    } 
+
+
     if(session.type === "ERROR"){
         return {
             redirect : {
