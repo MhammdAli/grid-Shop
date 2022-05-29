@@ -1,11 +1,9 @@
 import React from 'react'; 
 import { Box, List,Toolbar ,Typography , Divider , ListItemText
-,ListItemIcon ,ListItemButton ,IconButton} from '@mui/material';
+,ListItemIcon ,ListItemButton ,IconButton, Paper, Menu, MenuItem} from '@mui/material';
 import NextLink from "next/link"; 
-import { styled, useTheme as useMuiTheme} from '@mui/material/styles';
- 
-import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { ThemeProvider} from '@mui/material/styles';
+import MoreVertIcon from '@mui/icons-material/MoreVert'; 
 import { useTheme } from "../themes/theme";
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -16,83 +14,22 @@ import GroupIcon from '@mui/icons-material/Group';
 import AddLocationIcon from '@mui/icons-material/AddLocation';
 import CategoryIcon from '@mui/icons-material/Category';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-  }));
-
-  const openedMixin = (theme) => ({
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    overflowX: 'hidden',
-  });
-
-  const closedMixin = (theme) => ({
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: 'hidden',
-    width: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up('sm')]: {
-      width: `calc(${theme.spacing(8)} + 1px)`,
-    },
-  });
-
-  const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-  })(({ theme, open }) => ({
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-      marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    }),
-  }));
-  
-  const Drawer = styled(MuiDrawer, { shouldForwardProp : (prop) => prop !== 'open' })(
-    ({ theme, open }) => ({
-      width: drawerWidth,
-      flexShrink: 0,
-      whiteSpace: 'nowrap',
-      boxSizing: 'border-box',
-      ...(open && {
-        ...openedMixin(theme),
-        '& .MuiDrawer-paper': openedMixin(theme),
-      }),
-      ...(!open && {
-        ...closedMixin(theme),
-        '& .MuiDrawer-paper': closedMixin(theme),
-      }),
-    }),
-  );
-  
-
-  const drawerWidth = 240;
-
-
+import { CheckPermission, PERMISSIONS } from '../middlewares/hasPermission';
+import { logOut, useAuth } from '../auth/AuthContext';
+import { useStore } from '../store/store';
+import { DarkMode, LightMode } from '@mui/icons-material';
+import { changeDarkMode } from '../store/actions';
+import {useRouter} from "next/router";
+import {AppBar,Drawer,DrawerHeader} from "../components/DrawerStyles";
 
 const AdminLayout = ({children,Title}) => {
  
-    const theme = useMuiTheme(); 
-    const {theme : {myTheme}} = useTheme()
-    
+    const router = useRouter();
+    const {state,dispatch} = useStore()
+    const {theme} = useTheme(state.darkMode)
+    const {session} = useAuth();
     const [open, setOpen] = React.useState(false);
-
+    
     const handleDrawerOpen = () => {
         setOpen(true);
     };
@@ -100,43 +37,58 @@ const AdminLayout = ({children,Title}) => {
     const handleDrawerClose = () => {
         setOpen(false);
     };
-     
+      
     const ListItems = [ 
         {
             name : 'Add Products',
             icon : <AddBusinessIcon />,
-            link : "/admin/add/products"
+            link : "/admin/add/products",
+            needRole : PERMISSIONS.WRITE_PRODUCTS
         },
         {
             name : 'View Products',
             icon : <DescriptionIcon />,
-            link : "/admin/products"
+            link : "/admin/products",
+            needRole : PERMISSIONS.READ_PRODUCTS
         },
         {
             name : 'View Users',
             icon : <GroupIcon />,
-            link : "/admin/users"
+            link : "/admin/users",
+            needRole : PERMISSIONS.READ_USER
         },
         {
             name : 'branches',
             icon : <AddLocationIcon />,
-            link : "/admin/branches"
+            link : "/admin/branches",
+            needRole : PERMISSIONS.WRITE_BRANCH
         },
         {
             name : 'categories',
             icon : <CategoryIcon />,
-            link : "/admin/categories"
+            link : "/admin/categories",
+            needRole : PERMISSIONS.WRITE_CATEGORY
         },
         {
             name : 'Brand',
             icon : <Inventory2Icon />,
-            link : "/admin/brand"
+            link : "/admin/brand",
+            needRole : PERMISSIONS.WRITE_BRAND
         }
 
     ]
+
+    function changeThemeMode(){
+      dispatch(changeDarkMode(!state.darkMode ))
+      localStorage.setItem("darkMode",!state.darkMode )
+    } 
+
+    const [openAvatarMenu , setOpenAvatarmenu] = React.useState(null)
     
     return ( 
-        <Box sx={{ display: 'flex' }}>
+      <ThemeProvider theme={theme}>
+        <Paper>
+          <Box sx={{ display: 'flex' , minHeight : "100vh" }}>
             <AppBar position="fixed" open={open} >
               <Toolbar variant="dense">
                   <IconButton
@@ -151,57 +103,98 @@ const AdminLayout = ({children,Title}) => {
                   >
                       <MenuIcon />
                   </IconButton>
-                  <Typography variant="h6" noWrap component="div">
+                  <Typography variant="h6" noWrap component="div" sx={{flexGrow : 1}}>
                       {Title}
                   </Typography>
+                  <IconButton onClick={changeThemeMode}  sx={{color : "primary.contrastText" , borderRadius : theme.shape.borderRadius}}>
+                      {state.darkMode ? <LightMode  sx={{width : 24 , height : 24}}/> : <DarkMode  sx={{width : 24 , height : 24}}/>}
+                  </IconButton>
+                  <IconButton 
+                    aria-controls={open ? 'long-menu' : undefined}
+                    aria-expanded={open ? 'true' : undefined}
+                    aria-haspopup="true"
+                    onClick={({currentTarget})=>{setOpenAvatarmenu(currentTarget)}}
+                    sx={{color : "primary.contrastText"}}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                
+                <Menu
+                    open={Boolean(openAvatarMenu)}
+                    onClose={()=>{setOpenAvatarmenu(null)}}
+                    anchorEl={openAvatarMenu}
+                    PaperProps = {{
+                        style : {
+                            width : 200
+                        }
+                    }}
+                  >
+                    
+                    <MenuItem dense onClick={()=>{setOpenAvatarmenu(null); router.push("/") }}>Back To Home</MenuItem>
+                    <MenuItem dense onClick={()=>{
+                          setOpenAvatarmenu(null)
+                          logOut().then(()=>{
+                            router.replace("/signin")   
+                          })  
+                    }}>Logout</MenuItem>
+
+                    
+                </Menu>
               </Toolbar>
             </AppBar>
 
             <Drawer variant="permanent" open={open}>
                 <DrawerHeader>
-                    <IconButton onClick={handleDrawerClose}>
-                    {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                    </IconButton>
-                </DrawerHeader>
-
+                  <IconButton onClick={handleDrawerClose}>
+                      {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                  </IconButton>
+                </DrawerHeader> 
 
                 <Divider />
 
-                
                 <List>
-                    {ListItems.map((item, index) => (
-                        <NextLink href={item.link} passHref key={index}>
-                            <ListItemButton
+                    {ListItems.map((item, index) => { 
+                        if(!CheckPermission(session?.roles,item.needRole) && !session?.isAdmin) return null;
+                        return (
+                            <NextLink href={item.link} passHref key={index}>
+                                <ListItemButton
+                                    sx={{
+                                    minHeight: 48,
+                                    justifyContent: open ? 'initial' : 'center',
+                                    px: 2.5,
+                                    }}
+                                >
+                              
+                                <ListItemIcon
                                 sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
                                 }}
-                            >
-                        
-                            <ListItemIcon
-                            sx={{
-                                minWidth: 0,
-                                mr: open ? 3 : 'auto',
-                                justifyContent: 'center',
-                            }}
-                            >
-                            { item.icon }
-                            </ListItemIcon>
-                            <ListItemText primary={item.name} sx={{ opacity: open ? 1 : 0 }} />
-                        
-                        </ListItemButton>
-                    </NextLink>
-                    ))}
+                                >
+                                { item.icon }
+                                </ListItemIcon>
+                                <ListItemText primary={item.name} sx={{ opacity: open ? 1 : 0 }} />
+                            
+                              </ListItemButton>
+                          </NextLink>
+                        )
+                    })
+                  }
+                  
                 </List>
                 <Divider /> 
             </Drawer>
 
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-               <DrawerHeader />
-               {children}
+            
+            <Box component="main" sx={{ flexGrow: 1, p: 3 }}> 
+              <DrawerHeader />
+              {children} 
             </Box>
-        </Box>  
+            
+          </Box>  
+        </Paper>
+      </ThemeProvider>
     );
 }
 
