@@ -1,4 +1,6 @@
 import {orderModel} from "./orderSchema";
+import {productModel} from "../products/productsSchema";
+import {UserModel} from '../users/usersSchema';
 import {createValidationError , createMongoDbServerError} from "../../utilities/Errors/MongodbErrors/MongoDBErrors";
   
 export function addOrder(doc){
@@ -19,24 +21,24 @@ export function addOrder(doc){
 
 export async function getOrderById(id,options = {populateUser : true,populateItems : false}){
     try{
-        const query = orderModel.findById(id)
-        if(options.populateUser)
-            query.populate("user",{"__v" : 0,"tokenVersion" : 0},"user")
-        if(options.populateItems)
-        query.populate({
-            path : "items",
-            model : "order",
-            populate: { 
-                path: '_id',
-                select : {image : 1,discount : 1 , price : 1,slugName : 1,name : 1}
-            }
-        })
-        const docs = await query.lean();
- 
+        console.log(options)
+        const query = orderModel.findById(id).populate("user",{"__v" : 0},UserModel)
+         
+        if(options.populateItems) 
+            query.populate({
+                path : "items", 
+                populate: { 
+                    path: '_id', 
+                    model : productModel, 
+                    select : {image : 1,discount : 1 , price : 1,slugName : 1,name : 1 , _id : 1}
+                }
+            })
+        const docs = await query.lean(); 
         if(!docs) return Promise.reject({name : "ORDER_NOT_FOUND"})
         
         return docs;
-    }catch(err){  
+    }catch(err){ 
+        console.log(err) 
         return Promise.reject({name : err.name , message : err.message})
     }    
 }

@@ -10,8 +10,8 @@ const StockSchema = new mongoose.Schema({
         ref : 'Product'
     },
     countInStock : {
-        type : Number,
-        default : 0
+        type : Number, 
+        min : [1,'count stock must be greater then 0']
     },
     branchAddress : {
         type : String
@@ -39,7 +39,7 @@ const productSchema = new mongoose.Schema({
     },
     image : {
         type : String,
-        required : [true,"image Name is required"]
+        required : [true,"image is required"]
     },
     price : {
         type : Number,
@@ -71,10 +71,21 @@ const productSchema = new mongoose.Schema({
         maxlength : [500]
     },
     ItemDetails : {
-        type : [String]
-    },
-    article : {
-         type : String
+        type : [String],
+        validate : [{
+            validator : (values)=>{  
+                return values.length >= 1 && values.length <= 6
+            },
+            message : 'ItemDetails must be min 1 and max 6 items',
+            "path" : "item"
+           },
+           {
+            validator : (values)=>{ 
+                return values.every((value)=>value.length >=20 && value.length <=200)
+            },
+            message : 'ItemDetail must be between 20 and 200 character'
+           }
+        ]
     }
 },{
     timestamps: true,

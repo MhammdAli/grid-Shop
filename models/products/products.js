@@ -52,9 +52,36 @@ export async function getProductBySlugName(slugName){
     return await productModel.findOne({slugName : slugName}).lean() 
 }
 
+export async function getProductById(id){
+    return await productModel.findById(id+"".trim()).lean();
+}
+
 
 export async function getAllProducts(filter , page , pageSize){
     return  await productModel.find(
         filter
     ,{},{limit : pageSize,skip : page * pageSize , sort : {"createdAt" : -1}}).lean()
+}
+
+
+export async function updateProductById(id,doc) {
+    if(typeof id !== "string" && typeof id !== "number") throw new Error("id must be a string or a number")
+    if(typeof doc !== "object") throw new Error("doc must be a object")
+     
+     return new Promise((resolve , reject)=>{
+ 
+        productModel.findByIdAndUpdate(id,{"$set" : doc},function(err,result){
+
+            if(err){ 
+                if(err.name === 'ValidationError') return reject(createValidationError(err))
+                if(err.name === "MongoServerError") return reject(createMongoDbServerError(err))
+                if(err.name === "CastError") return reject({err : "Casting error"})
+                return reject(err)
+            }
+            
+            resolve(result)
+            
+        })
+
+     })
 }
