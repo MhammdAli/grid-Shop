@@ -7,9 +7,8 @@ export function calculateShippingPrice(itemsPrice) {
 }
 
 export function formatToCurrency(amount,currency){
-    const price = parseFloat(amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,"))
-    if(typeof currency === "undefined") return price
-    return convertCurrencyToSymbol(currency) + price
+    if(typeof currency === "undefined") return amount
+    return convertCurrencyToSymbol(currency) + amount
 }
 
 function convertCurrencyToSymbol(currency){

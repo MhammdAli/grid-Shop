@@ -171,11 +171,20 @@ export function createValidationError({errors}){
 
 // i will update this when i catch some errors
 export function createMongoDbServerError(error){
-      
+    
       switch(error?.code){
-         case ERROR_CODES.DuplicateKey :  
-         return {type : "DUPLICATE_KEY_VALUE" , field :Object.keys(error.keyValue)[0]}
-         default : return error  
+         
+         case ERROR_CODES.DuplicateKey : {
+            const field = Object.keys(error.keyValue)[0]
+            const err = {}
+            err[field] ={
+                name : "DUPLICATE_KEY_VALUE",
+                message : `${field} must be unique. please choose another slug-Name`,
+                field
+            }
+            return err;
+        }
+        default : return error  
     }
 }
 
