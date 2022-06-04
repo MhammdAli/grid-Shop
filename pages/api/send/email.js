@@ -16,7 +16,7 @@ handler.use(validate({
     to : {
         match : {
             validator : (value)=>{
-                return !/^([\w]*[\w\.]*(?!\.)@gmail.com)/.test(value)
+                return !/^([\w]*[\w.]*(?!\.)@gmail.com)/.test(value)
             },
             message : "to field is required"
         }
