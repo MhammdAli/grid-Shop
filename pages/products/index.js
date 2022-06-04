@@ -74,8 +74,7 @@ function Products() {
                                     <Itemcard   
                                         name={item.name} 
                                         mainCategory={item.category.main}
-                                        price={item.price} 
-                                        rating={parseInt(item.rating)} 
+                                        price={item.price}  
                                         description={item.description} 
                                         image={item.image}
                                         updatedAt={item.updatedAt} 

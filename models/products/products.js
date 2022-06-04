@@ -37,9 +37,7 @@ export function addProduct(doc){
 export async function getTopProducts (page , pageSize){
     if(typeof page !== "number") throw new Error("page must be a number")
     if(typeof pageSize !== "number") throw new Error("page must be a number")
-    return  await productModel.find({
-        "rating" : {"$gte" : 3.5}
-    },{},{limit : pageSize,skip : page * pageSize , sort : {"createdAt" : -1} }).lean()
+    return  await productModel.find({},{},{limit : pageSize,skip : page * pageSize , sort : {"createdAt" : -1} }).lean()
 }
 
 /*

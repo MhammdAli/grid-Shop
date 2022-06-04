@@ -53,12 +53,6 @@ const productSchema = new mongoose.Schema({
         type : String,
         required : [true,"barnd Name is required"]
     },
-    rating : {
-        type : Number, 
-        default : 0,
-        min:[0,"Rating must be min 0 , you got {VALUE}"],
-        max:[5,"Rating must be max 5 , you got {VALUE}"] 
-    },
     numReviews : {
         type : Number, 
         default : 0

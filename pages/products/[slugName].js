@@ -114,12 +114,7 @@ const Productid = ({productProps}) => {
                                         <Typography>
                                             Brand : {product.brand}
                                         </Typography>
-                                    </ListItem>
-                                    <ListItem>
-                                        <Typography>
-                                            Rating : {product.rating}  stars of {product.numReviews} (reviews)
-                                        </Typography>
-                                    </ListItem>
+                                    </ListItem> 
                                 </List>
                             </Grid>
                             <Grid item md={6} xs={12}>
