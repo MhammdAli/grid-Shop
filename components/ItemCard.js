@@ -1,10 +1,9 @@
-import { Star } from '@mui/icons-material';
-import { Button, Card, CardActions, CardContent, CardHeader, CardMedia, Collapse, Divider, IconButton, List, ListItem, Rating, Typography } from '@mui/material';
+import { Button, Card, CardActions, CardContent, CardHeader, CardMedia, Collapse, Divider, IconButton, List, ListItem, Typography } from '@mui/material';
 import React from 'react'; 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; 
 import styled from '@emotion/styled';
 import CustomLink from "../utilities/customRouting"
-const Itemcard = ({itemDetails,image ,slugName, name,updatedAt , mainCategory , price , rating , description }) => {
+const Itemcard = ({itemDetails,image ,slugName, name,updatedAt , mainCategory , price, description }) => {
 
     const [expanded, setExpanded] = React.useState(false);
     
@@ -52,18 +51,7 @@ const Itemcard = ({itemDetails,image ,slugName, name,updatedAt , mainCategory , 
                 <Typography variant="body2" color="text.secondary">
                     Category : {mainCategory}
                 </Typography>
-            </ListItem>
-            <ListItem sx={{p:0,py:.5}}>
-                Ratting :  
-                <Rating 
-                    name="text-feedback"
-                    value={rating}
-                    readOnly
-                    precision={1}
-                    sx={{ml:1}}
-                    emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit" />}
-                />
-            </ListItem>
+            </ListItem> 
         </List>
         <Typography variant="body2" color="text.secondary">
            {description}
